@@ -3,60 +3,102 @@ import os
 from pathlib import Path
 import shutil
 
+import pandas as pd
+
+
 class DatasetManager:
+
+    _DEFAULT_SAVE_DIR = 'datasets'
 
     def __init__(self):
 
         self._datasets = {}
 
+        # TODO .sql files?
+        self.file_ext_read_funcs = {
+            '.feather':pd.read_feather,
+            '.csv':pd.read_csv,
+            '.json':pd.read_json,
+            '.html':pd.read_html,
+            '.xls':pd.read_excel,
+            '.xlsx':pd.read_excel,
+            '.hdf':pd.read_hdf,
+            '.parquet':pd.read_parquet,
+            '.dta':pd.read_stata,
+            '.pkl':pd.read_pickle,
+            '.pickle':pd.read_pickle
+        }
+
     def get_datasets(self,dataset_keys=None):
 
+        # If they didn't specify, then give them everything.
         if dataset_keys is None:
 
             return self._datasets
         
         else:
 
-            return {
-                key:dataset
-                for key, dataset
-                in self._datasets.items()
-                if key in dataset_keys
-            }
+            return dict(
+                filter(
+                    lambda dataset_entry: dataset_entry[0] in dataset_keys,
+                    self._datasets.items()
+                )
+            )
 
     def load_datasets(self,workspace_path,*dataset_paths):
 
-        # TODO Determine how to load the dataset based on the filetype
-
         for dataset_path in dataset_paths:
 
-            if Path(dataset_path).parent == Path(workspace_path).parent and 
+            dataset_name = self._determine_dataset_name(dataset_path)
 
-            dataset_name = Path(dataset_path).stem
+            # If the dataset is already in the workspace, no need to load it.
+            if dataset_path.parent != workspace_path:
 
-            count = 0
+                read_func = self.file_ext_read_funcs(dataset.suffix)
 
-            while dataset_name in self._datasets.keys():
+                # TODO try/except
 
-                count += 1
+                df = read_func(dataset_path)
 
-                if count == 1:
+                # E.g. /path/data.csv --> /workspace/data.feather
+                new_file_path = workspace_path.joinpath(dataset_path.withsuffix('.feather'))
 
-                    dataset_name = '.'.join(dataset_name.split('.')[:-1])
-
-                dataset_name = f'{dataset_name}.{count}'
-
-            df = pd.read_csv(dataset_path)
-
-            
+                df.to_feather(new_file_path)
 
             self._datasets[dataset_name] = dataset_path
 
+    def _determine_dataset_name(self,dataset_path):
+
+        dataset_name = dataset_path.stem
+
+        # If there's already a dataset saved with the target name,
+        # we'll want to add a suffix to it so we can tell them apart
+        # when querying.
+        if dataset_name in self._datasets.keys():
+
+            suffix = 2
+
+            while f'{dataset_name}{suffix}' in self._datasets.keys():
+
+                suffix += 1
+
+            dataset_name = f'{dataset_name}{suffix}' 
+
+        return dataset_name   
+
     def remove_datasets(self,selected_datasets):
 
-        for dataset in selected_datasets:
+        for dataset_name in selected_datasets:
 
-            if dataset in self._datasets.keys():
+            # TODO cater.py should be checking this. Is this even possible?
+            if dataset_name in self._datasets.keys():
+
+                dataset_path = self._datasets[dataset_name]
+
+                # Not sure how the dataset would go missing
+                # (barring the user manually deleting it,)
+                # but airing on the side of caution.
+                dataset_path.unlink(missing_ok=True)
 
                 del self._datasets[dataset]
 
@@ -66,16 +108,29 @@ class DatasetManager:
 
     def export_datasets(self,datasets):
 
-        dir_name = 'datasets'
+        dir_name = self._DEFAULT_SAVE_DIR
 
-        if os.path.exists(dir_name):
+        if Path(dir_name).exists():
 
-            timestamp = datetime.now().timestamp()
+            timestamp = datetime.now().timestamp().__str__()
 
-            dir_name = f'datasets_{timestamp}'
+            dir_name = f'{dir_name}_{timestamp}'
 
-        os.mkdir(dir_name)
+        save_dir = Path(dir_name)
 
-        for dataset in datasets:
+        save_dir.mkdir()
 
-            shutil.copy(self._datasets[dataset],os.path.join(dir_name,Path(self._datasets[dataset]).name))
+        # TODO cater.py should probably ensure all these still exist
+        # before trying to interact with them,
+        # just to be safe.
+        for dataset_name in datasets:
+
+            dataset_path = self._datasets[dataset_name]
+
+            # TODO cater.py should determine how the user wants to save the files.
+            # E.g. if they want .feather files they should be able to specify that,
+            # rather than defaulting to .csv.
+
+            dataset_save_path = save_dir.joinpath(dataset_path.withsuffix('.csv'))
+
+            shutil.copy(dataset_path,dataset_save_path)

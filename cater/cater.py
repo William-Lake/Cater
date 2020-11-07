@@ -20,6 +20,12 @@ class Cater:
     def __init__(self):
         """Constructor"""
 
+        # TODO Before exiting, if the user has datasets in their workspace
+        # warn they'll be lost and ask if they'd like to save them first.
+
+        # TODO Right click menu option in the dataset listbox to get a 
+        # dataset summary.
+
         self._create_resources()
 
         self._callback_dict = {
@@ -62,6 +68,7 @@ class Cater:
 
     def _load_workspace(self):
 
+        # TODO In the future workspace files wont be dirs.
         workspace_path = self._input_manager.get_filepath_input(is_directory=True)
 
         if workspace_path:
@@ -78,7 +85,10 @@ class Cater:
 
             self._workspace_manager.load_workspace(workspace_path)
 
-            self._load_datasets(Path(self._workspace_manager.get_workspace_path()).glob('*.feather'))
+            # Is there any reason to believe rglob would be necessary here?
+            # I would only think it was if the user manually went in and changed the workspace
+            # while cater was running, but how likely is that?
+            self._load_datasets(workspace_path.glob('*.feather'))
 
             
 
@@ -99,21 +109,24 @@ class Cater:
 
         file_paths = self._input_manager.get_filepath_input(multiple_files=True)
 
+        # if not empty and not None
         if file_paths:
-
-            file_paths = [file_paths] if isinstance(file_paths,str) else file_paths
-
-            file_paths = [
-                Path(file_path)
-                for file_path
-                in file_paths
-            ]
 
             self._load_datasets(*file_paths)
 
-        # TODO Flesh this process out
-
     def _load_datasets(self,*dataset_paths):
+
+        '''
+        TODO
+        Determine whether the dataset paths are supported file types.
+        If any aren't, ask the user if they want to continue.
+        If only some aren't and the user wants to continue-
+            go on without the problematic ones.
+        If all aren't and the user wants to continue-
+            alert the user and abandon.
+
+        dataset_manager.file_ext_read_funcs is public, and its keys are the supported file extensions.
+        '''
 
         self._dataset_manager.load_datasets(self._workspace_manager.get_workspace_path(),*dataset_paths)
 
@@ -186,7 +199,10 @@ class Cater:
 
             save_path = self._input_manager.get_filepath_input(save_as=True)
 
-            return self._report_generator.generate_pandas_profiling_report(save_path,self._dataset_manager.get_datesets(selected_dataset))
+            # TODO Should the user be alerted that their report wont be generated if they dont provide a save path?
+            if save_path:
+
+                return self._report_generator.generate_pandas_profiling_report(save_path,self._dataset_manager.get_datesets(selected_dataset))
 
     def _create_resources(self):
 
