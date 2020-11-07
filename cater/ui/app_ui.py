@@ -16,7 +16,6 @@ class AppUI(psg.Window):
 
         self._control_action_dict = cater_callback_dict
 
-
     def start(self):
 
         while True:
@@ -51,8 +50,8 @@ class AppUI(psg.Window):
 
         self[AppUILayout.ML_SQL].Update()
 
-        self[AppUILayout.ML_RSLT].Update()   
+        self[AppUILayout.ML_RSLT].Update()
 
-    def update_datasets(self,dataset_names):
+    def update_datasets(self, dataset_names):
 
-         self[AppUILayout.LB_DATASETS].Update(dataset_names)
+        self[AppUILayout.LB_DATASETS].Update(dataset_names)

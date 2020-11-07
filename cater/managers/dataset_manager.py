@@ -8,7 +8,7 @@ import pandas as pd
 
 class DatasetManager:
 
-    _DEFAULT_SAVE_DIR = 'datasets'
+    _DEFAULT_SAVE_DIR = "datasets"
 
     def __init__(self):
 
@@ -16,36 +16,36 @@ class DatasetManager:
 
         # TODO .sql files?
         self.file_ext_read_funcs = {
-            '.feather':pd.read_feather,
-            '.csv':pd.read_csv,
-            '.json':pd.read_json,
-            '.html':pd.read_html,
-            '.xls':pd.read_excel,
-            '.xlsx':pd.read_excel,
-            '.hdf':pd.read_hdf,
-            '.parquet':pd.read_parquet,
-            '.dta':pd.read_stata,
-            '.pkl':pd.read_pickle,
-            '.pickle':pd.read_pickle
+            ".feather": pd.read_feather,
+            ".csv": pd.read_csv,
+            ".json": pd.read_json,
+            ".html": pd.read_html,
+            ".xls": pd.read_excel,
+            ".xlsx": pd.read_excel,
+            ".hdf": pd.read_hdf,
+            ".parquet": pd.read_parquet,
+            ".dta": pd.read_stata,
+            ".pkl": pd.read_pickle,
+            ".pickle": pd.read_pickle,
         }
 
-    def get_datasets(self,dataset_keys=None):
+    def get_datasets(self, dataset_keys=None):
 
         # If they didn't specify, then give them everything.
         if dataset_keys is None:
 
             return self._datasets
-        
+
         else:
 
             return dict(
                 filter(
                     lambda dataset_entry: dataset_entry[0] in dataset_keys,
-                    self._datasets.items()
+                    self._datasets.items(),
                 )
             )
 
-    def load_datasets(self,workspace_path,*dataset_paths):
+    def load_datasets(self, workspace_path, *dataset_paths):
 
         for dataset_path in dataset_paths:
 
@@ -57,17 +57,20 @@ class DatasetManager:
                 read_func = self.file_ext_read_funcs(dataset.suffix)
 
                 # TODO try/except
+                # TODO Address different params each read method allows.
 
                 df = read_func(dataset_path)
 
                 # E.g. /path/data.csv --> /workspace/data.feather
-                new_file_path = workspace_path.joinpath(dataset_path.withsuffix('.feather'))
+                new_file_path = workspace_path.joinpath(
+                    dataset_path.withsuffix(".feather")
+                )
 
                 df.to_feather(new_file_path)
 
             self._datasets[dataset_name] = dataset_path
 
-    def _determine_dataset_name(self,dataset_path):
+    def _determine_dataset_name(self, dataset_path):
 
         dataset_name = dataset_path.stem
 
@@ -78,15 +81,15 @@ class DatasetManager:
 
             suffix = 2
 
-            while f'{dataset_name}{suffix}' in self._datasets.keys():
+            while f"{dataset_name}{suffix}" in self._datasets.keys():
 
                 suffix += 1
 
-            dataset_name = f'{dataset_name}{suffix}' 
+            dataset_name = f"{dataset_name}{suffix}"
 
-        return dataset_name   
+        return dataset_name
 
-    def remove_datasets(self,selected_datasets):
+    def remove_datasets(self, selected_datasets):
 
         for dataset_name in selected_datasets:
 
@@ -106,7 +109,7 @@ class DatasetManager:
 
         return list(self._datasets.keys())
 
-    def export_datasets(self,datasets):
+    def export_datasets(self, datasets):
 
         dir_name = self._DEFAULT_SAVE_DIR
 
@@ -114,7 +117,7 @@ class DatasetManager:
 
             timestamp = datetime.now().timestamp().__str__()
 
-            dir_name = f'{dir_name}_{timestamp}'
+            dir_name = f"{dir_name}_{timestamp}"
 
         save_dir = Path(dir_name)
 
@@ -131,6 +134,6 @@ class DatasetManager:
             # E.g. if they want .feather files they should be able to specify that,
             # rather than defaulting to .csv.
 
-            dataset_save_path = save_dir.joinpath(dataset_path.withsuffix('.csv'))
+            dataset_save_path = save_dir.joinpath(dataset_path.withsuffix(".csv"))
 
-            shutil.copy(dataset_path,dataset_save_path)
+            shutil.copy(dataset_path, dataset_save_path)

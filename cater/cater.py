@@ -3,7 +3,6 @@ from threading import Thread
 
 import pandas as pd
 import PySimpleGUI as psg
-import fleep
 
 from ui.app_ui import AppUI
 from ui.layout.app_ui_layout import AppUILayout
@@ -23,20 +22,20 @@ class Cater:
         # TODO Before exiting, if the user has datasets in their workspace
         # warn they'll be lost and ask if they'd like to save them first.
 
-        # TODO Right click menu option in the dataset listbox to get a 
+        # TODO Right click menu option in the dataset listbox to get a
         # dataset summary.
 
         self._create_resources()
 
         self._callback_dict = {
-            AppUILayout.BTN_GO:self._execute_query,
-            AppUILayout.SAVE_WORKSPACE:self._save_workspace,
-            AppUILayout.LOAD_WORKSPACE:self._load_workspace,
-            AppUILayout.ADD_DATASET:self._add_dataset,
-            AppUILayout.REMOVE_DATASET:self._remove_dataset,
-            AppUILayout.EXPORT_DATASET:self._export_dataset,
-            AppUILayout.DATACOMPY_REPORT:self._generate_datacompy_report,
-            AppUILayout.PANDAS_PROFILING_REPORT:self._generate_pandas_profiling_report
+            AppUILayout.BTN_GO: self._execute_query,
+            AppUILayout.SAVE_WORKSPACE: self._save_workspace,
+            AppUILayout.LOAD_WORKSPACE: self._load_workspace,
+            AppUILayout.ADD_DATASET: self._add_dataset,
+            AppUILayout.REMOVE_DATASET: self._remove_dataset,
+            AppUILayout.EXPORT_DATASET: self._export_dataset,
+            AppUILayout.DATACOMPY_REPORT: self._generate_datacompy_report,
+            AppUILayout.PANDAS_PROFILING_REPORT: self._generate_pandas_profiling_report,
         }
 
         self._app_ui = AppUI(self._callback_dict)
@@ -46,13 +45,12 @@ class Cater:
         query = self._app_ui[AppUILayout.ML_SQL].Get()
 
         dfs = {
-            df_name:pd.read_feather(df_path)
-            for df_name,df_path
-            in self._dataset_manager.get_datasets().items()
+            df_name: pd.read_feather(df_path)
+            for df_name, df_path in self._dataset_manager.get_datasets().items()
             if df_name in query
         }
 
-        return self._query_executor.execute_query_against_dfs(query=query,dfs=dfs)
+        return self._query_executor.execute_query_against_dfs(query=query, dfs=dfs)
 
     def _save_workspace(self):
 
@@ -60,10 +58,8 @@ class Cater:
 
             filepath = self._input_manager.get_filepath_input()
 
-            # TODO Validation
-
             if filepath:
-                
+
                 self._workspace_manager.save_workspace(filepath)
 
     def _load_workspace(self):
@@ -75,7 +71,9 @@ class Cater:
 
             if not self._workspace_manager.is_empty():
 
-                if self._input_manager.get_user_confirmation(prompt='It looks like there\'s already a workspace- would you like to save it before continuing?'):
+                if self._input_manager.get_user_confirmation(
+                    prompt="It looks like there's already a workspace- would you like to save it before continuing?"
+                ):
 
                     self._save_workspace()
 
@@ -88,13 +86,11 @@ class Cater:
             # Is there any reason to believe rglob would be necessary here?
             # I would only think it was if the user manually went in and changed the workspace
             # while cater was running, but how likely is that?
-            self._load_datasets(workspace_path.glob('*.feather'))
-
-            
+            self._load_datasets(workspace_path.glob("*.feather"))
 
     def _add_dataset(self):
 
-        '''
+        """
         Gather file paths from user
         determine file type
         determine method for loading df
@@ -105,7 +101,7 @@ class Cater:
             add df name to ui listbox
         else
             alert the user they can't use that thing as a datasource
-        '''
+        """
 
         file_paths = self._input_manager.get_filepath_input(multiple_files=True)
 
@@ -114,9 +110,9 @@ class Cater:
 
             self._load_datasets(*file_paths)
 
-    def _load_datasets(self,*dataset_paths):
+    def _load_datasets(self, *dataset_paths):
 
-        '''
+        """
         TODO
         Determine whether the dataset paths are supported file types.
         If any aren't, ask the user if they want to continue.
@@ -126,64 +122,73 @@ class Cater:
             alert the user and abandon.
 
         dataset_manager.file_ext_read_funcs is public, and its keys are the supported file extensions.
-        '''
+        """
 
-        self._dataset_manager.load_datasets(self._workspace_manager.get_workspace_path(),*dataset_paths)
+        self._dataset_manager.load_datasets(
+            self._workspace_manager.get_workspace_path(), *dataset_paths
+        )
 
-        self._app_ui.update_datasets(self._dataset_manager.get_dataset_names())        
+        self._app_ui.update_datasets(self._dataset_manager.get_dataset_names())
 
     def _remove_dataset(self):
 
-        '''
+        """
         give user pop up with list of options
         get user selections for which to remove
         for each selection
             remove from local dict
             remove from tmp dir
-        '''
-        selected_datasets = self._input_manager.get_user_selections(self._dataset_manager.get_dataset_names())
+        """
+        selected_datasets = self._input_manager.get_user_selections(
+            self._dataset_manager.get_dataset_names()
+        )
 
         if selected_datasets:
 
             self._dataset_manager.remove_datasets(selected_datasets)
 
-            self._app_ui.update_datasets(self._dataset_manager.get_dataset_names()) 
+            self._app_ui.update_datasets(self._dataset_manager.get_dataset_names())
 
     def _export_dataset(self):
 
-        '''
+        """
         give user popup with list of options
         get file type from user
         get save path from user
         save dataset
-        '''
-        selected_datasets = self._input_manager.get_user_selections(self._dataset_manager.get_dataset_names())
+        """
+        selected_datasets = self._input_manager.get_user_selections(
+            self._dataset_manager.get_dataset_names()
+        )
 
         if selected_datasets:
 
             self._dataset_manager.export_datasets(selected_datasets)
-                    
 
     def _generate_datacompy_report(self):
 
-        '''
+        """
         if number of datasets < 2
             tell the user this isn't possible
         else
             use popup to get a selection of 2 datasets from user
             generate the datacompy report
             return the dir the report is located in
-        '''
+        """
 
-        selected_datasets = self._input_manager.get_user_selections(self._dataset_manager.get_dataset_names(),limit=2)
+        selected_datasets = self._input_manager.get_user_selections(
+            self._dataset_manager.get_dataset_names(), limit=2
+        )
 
         if selected_datasets:
 
-            return self._report_generator.generate_datacompy_report(self._dataset_manager.get_datasets(selected_datasets))
+            return self._report_generator.generate_datacompy_report(
+                self._dataset_manager.get_datasets(selected_datasets)
+            )
 
     def _generate_pandas_profiling_report(self):
 
-        '''
+        """
         if number of datasets < 1
             tell the user this isn't possible
         else
@@ -191,9 +196,11 @@ class Cater:
             gather the file save path from the user
             generate the pandas profiling report
             return the name of the report
-        '''
+        """
 
-        selected_dataset = self._input_manager.get_user_selections(self._dataset_manager.get_dataset_names(),limit=1)
+        selected_dataset = self._input_manager.get_user_selections(
+            self._dataset_manager.get_dataset_names(), limit=1
+        )
 
         if selected_dataset:
 
@@ -202,7 +209,9 @@ class Cater:
             # TODO Should the user be alerted that their report wont be generated if they dont provide a save path?
             if save_path:
 
-                return self._report_generator.generate_pandas_profiling_report(save_path,self._dataset_manager.get_datesets(selected_dataset))
+                return self._report_generator.generate_pandas_profiling_report(
+                    save_path, self._dataset_manager.get_datesets(selected_dataset)
+                )
 
     def _create_resources(self):
 
@@ -214,7 +223,7 @@ class Cater:
 
         self._report_generator = ReportGenerator()
 
-        self._query_executor = QueryExecutor()          
+        self._query_executor = QueryExecutor()
 
     def start(self):
         """Starts the app."""

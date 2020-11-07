@@ -12,7 +12,7 @@ class AppUILayout(list):
 
     COL = "COL"
 
-    EXIT = 'EXIT'
+    EXIT = "EXIT"
 
     SAVE_WORKSPACE = "Save..."
     LOAD_WORKSPACE = "Load..."
@@ -34,7 +34,7 @@ class AppUILayout(list):
         menu = psg.MenuBar(
             background_color="#CCCCCC",
             menu_definition=[
-                ["File",[self.EXIT]],
+                ["File", [self.EXIT]],
                 ["Workspace", [self.SAVE_WORKSPACE, self.LOAD_WORKSPACE]],
                 [
                     "Dataset",

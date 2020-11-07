@@ -2,7 +2,7 @@ import PySimpleGUI as psg
 
 
 class SelectionsDialog(psg.Window):
-    def __init__(self,*choices,limit=None):
+    def __init__(self, *choices, limit=None):
 
         super().__init__("Selections", self._create_layout(*choices))
 
@@ -14,7 +14,7 @@ class SelectionsDialog(psg.Window):
 
         return [list(self._checkboxes.values())]
 
-    def start(self,limit):
+    def start(self, limit):
 
         while True:
 
@@ -28,6 +28,6 @@ class SelectionsDialog(psg.Window):
 
         if len(selections) != limit:
 
-            psg.PopupError(f'You must select {limit} options.')
+            psg.PopupError(f"You must select {limit} options.")
 
             return self._start(limit)

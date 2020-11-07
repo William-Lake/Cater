@@ -9,6 +9,9 @@ from cater import Cater
 if __name__ == "__main__":
     """Main Method"""
 
+    # TODO Some better exception handling that wont result in
+    #
+
     try:
 
         matplotlib.use("Agg")

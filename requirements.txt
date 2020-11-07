@@ -3,7 +3,5 @@ pandas
 datacompy
 black
 pandas-profiling
-tqdm
 pandasql
 sqlparse
-fleep

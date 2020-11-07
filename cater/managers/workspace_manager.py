@@ -5,14 +5,13 @@ from tempfile import TemporaryDirectory
 
 
 class WorkspaceManager:
-
     def __init__(self):
 
         self._tmp_dir = TemporaryDirectory()
 
-    def save_workspace(self,save_location):
+    def save_workspace(self, save_location):
 
-        shutil.copytree(self._tmp_dir,save_location)
+        shutil.copytree(self._tmp_dir, save_location)
 
     def is_empty(self):
 
@@ -26,7 +25,7 @@ class WorkspaceManager:
 
         return dir_is_empty
 
-    def load_workspace(self,workspace_path):
+    def load_workspace(self, workspace_path):
 
         # Replacing the previous workspace with a new one.
         self._tmp_dir = TemporaryDirectory()
@@ -35,14 +34,14 @@ class WorkspaceManager:
         # so change the extension to .zip, unzip, remove the .zip file,
         # then load.
 
-        shutil.copytree(workspace_path,self._tmp_dir)
+        shutil.copytree(workspace_path, self._tmp_dir)
 
     def get_workspace_path(self):
 
         return self._tmp_dir
 
-    def save_workspace(self,workspace_path):
+    def save_workspace(self, workspace_path):
 
         # TODO .zip this up after copying, then change the extension to .cater
 
-        shutil.copytree(self._tmp_dir,workspace_path)
+        shutil.copytree(self._tmp_dir, workspace_path)
