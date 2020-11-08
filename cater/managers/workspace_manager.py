@@ -35,7 +35,7 @@ class WorkspaceManager:
         # so change the extension to .zip, unzip, remove the .zip file,
         # then load.
 
-        shutil.copytree(workspace_path, self._tmp_dir.name)
+        shutil.copytree(workspace_path, self._tmp_dir.name,dirs_exist_ok=True)
 
     def get_workspace_path(self):
 
@@ -44,7 +44,5 @@ class WorkspaceManager:
     def save_workspace(self, workspace_path):
 
         # TODO .zip this up after copying, then change the extension to .cater
-
-        print(workspace_path)
 
         shutil.copytree(self._tmp_dir.name, workspace_path)

@@ -6,6 +6,10 @@ from ui.selections_dialog import SelectionsDialog
 
 
 class InputManager:
+
+    YES = 'Yes'
+    NO = 'No'
+
     def get_filepath_input(self, **kwargs):
 
         if 'no_window' not in kwargs.keys() or not kwargs['no_window']:
@@ -33,9 +37,11 @@ class InputManager:
 
         selected_directory = psg.PopupGetFolder(**kwargs)
 
+        print(selected_directory)
+
         if selected_directory:
 
-            selected_diretory = Path(selected_directory)
+            selected_directory = Path(selected_directory)
 
         return selected_directory
 
@@ -45,4 +51,8 @@ class InputManager:
 
     def get_user_selections(self, choices, limit=None):
 
-        return SelectionsDialog(choices, limit)
+        return SelectionsDialog(*choices, limit)
+
+    def get_user_text_input(self,prompt):
+
+        return psg.PopupGetText(prompt,button_color=('#E0FBFC','#DE1A1A'))

@@ -3,7 +3,7 @@ import PySimpleGUI as psg
 
 class AppUILayout(list):
 
-    BTN_GO = "BTN_GO"
+    EXECUTE = "EXECUTE"
 
     LB_DATASETS = "LB_DATASETS"
 
@@ -16,64 +16,46 @@ class AppUILayout(list):
 
     SAVE_WORKSPACE = "Save..."
     LOAD_WORKSPACE = "Load..."
-    ADD_DATASET = "Add..."
-    REMOVE_DATASET = "Remove..."
-    EXPORT_DATASET = "Export..."
+    ADD_DATASET = "Add Dataset(s)"
+    REMOVE_DATASET = "Remove Dataset"
+    EXPORT_DATASET = "Export Dataset(s)"
+    ADD_RESULTS_TO_DATASETS = 'Add Results to Datasets'
 
+    REPORTING = 'Reporting...'
     DATACOMPY_REPORT = "Datacompy..."
     PANDAS_PROFILING_REPORT = "Pandas Profiling..."
 
     def __init__(self):
 
-        """
-        bottom
-            frame
-                multiline - results
-        """
+        '''
+        column
+            sql frame
+            dataset frame
+        column
+            results
+        '''
 
         menu = psg.MenuBar(
             background_color="#CCCCCC",
             menu_definition=[
                 ["File", [self.EXIT]],
                 ["Workspace", [self.SAVE_WORKSPACE, self.LOAD_WORKSPACE]],
-                [
-                    "Dataset",
-                    [
-                        self.ADD_DATASET,
-                        self.EXPORT_DATASET,
-                        self.REMOVE_DATASET,
-                        "Reporting",
-                        [self.DATACOMPY_REPORT, self.PANDAS_PROFILING_REPORT],
-                    ],
-                ],
             ],
         )
 
         self.append([menu])
 
-        dataset_container = psg.Listbox(
-            [],
-            key=self.LB_DATASETS,
-            size=(62, 10),
-            background_color="#FCC7EB",
-            text_color="#96433B",
-        )
-
-        dataset_frame = psg.Frame(
-            "Datasets",
-            layout=[[dataset_container]],
-        )
 
         sql_entry = psg.Multiline(
             key=self.ML_SQL,
-            size=(62, 10),
+            size=(54, 10),
             background_color="#E0FBFC",
             text_color="#4A6C96",
+            enable_events=True
         )
 
         sql_submit = psg.Button(
             "EXECUTE",
-            key=self.BTN_GO,
             button_color=("#404040", "#8AC926"),
         )
 
@@ -85,23 +67,56 @@ class AppUILayout(list):
             ],
         )
 
-        self.append([psg.vtop(dataset_frame), query_frame])
+        dataset_container = psg.Listbox(
+            [],
+            key=self.LB_DATASETS,
+            size=(35, 10),
+            background_color="#FCC7EB",
+            text_color="#96433B",
+            select_mode=psg.LISTBOX_SELECT_MODE_EXTENDED
+        )
 
-        results_container = psg.Multiline(
+        dataset_buttons = [
+            [psg.Button(self.ADD_DATASET,button_color=('#404040','#E0FBFC'))],
+            [psg.Button(self.ADD_RESULTS_TO_DATASETS,button_color=('#404040','#FF8552'),disabled=True)],
+            [psg.Button(self.REMOVE_DATASET,button_color=('#E0FBFC','#1982C4'),disabled=True)],
+            [psg.Button(self.EXPORT_DATASET,button_color=('#404040','#FFCA3A'),disabled=True)],
+            [psg.Button(self.REPORTING,button_color=('#E0FBFC','#BD8B9C'),disabled=True)]
+        ]
+
+        ds_button_column = psg.Column(layout = dataset_buttons)
+
+        dataset_frame = psg.Frame(
+            "Datasets",
+            layout=[[dataset_container,ds_button_column]],
+        )
+
+        left_column = psg.Column(            
+            layout=[[query_frame],[dataset_frame]],
+        )
+
+        results_frame = psg.Frame('Results',layout=[[psg.Multiline(
             background_color="#FCF5C7",
             text_color="#7168B0",
             font=["Courier New", 10],
             key=self.ML_RSLT,
             auto_refresh=True,
-            size=(750, 350),
+            size=(500, 302),
             auto_size_text=True,
-        )
+            disabled=True
+        )]])
 
-        scrollable_column = psg.Column(
-            layout=[[results_container]],
+        right_column = psg.Column(
+            layout=[[results_frame]],
             scrollable=True,
-            size=(900, 350),
+            size=(500, 302),
             key=self.COL,
         )
 
-        self.append([scrollable_column])
+        status_bar = psg.StatusBar('Load a Workspace, or add a Dataset to begin.',text_color='#FFCA3A')
+
+        self.append([left_column, right_column])
+
+        self.append([psg.HorizontalSeparator(pad=(0,5))])
+
+        self.append([status_bar])

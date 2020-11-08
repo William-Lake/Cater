@@ -6,13 +6,11 @@ import shutil
 import pandas as pd
 
 
-class DatasetManager:
+class DatasetManager(dict):
 
     _DEFAULT_SAVE_DIR = "datasets"
 
     def __init__(self):
-
-        self._datasets = {}
 
         # TODO .sql files?
         self.file_ext_read_funcs = {
@@ -28,22 +26,6 @@ class DatasetManager:
             ".pkl": pd.read_pickle,
             ".pickle": pd.read_pickle,
         }
-
-    def get_datasets(self, dataset_keys=None):
-
-        # If they didn't specify, then give them everything.
-        if dataset_keys is None:
-
-            return self._datasets
-
-        else:
-
-            return dict(
-                filter(
-                    lambda dataset_entry: dataset_entry[0] in dataset_keys,
-                    self._datasets.items(),
-                )
-            )
 
     def load_datasets(self, workspace_path, *dataset_paths):
 
@@ -71,7 +53,8 @@ class DatasetManager:
 
                 dataset_path = new_file_path
 
-            self._datasets[dataset_name] = dataset_path
+            self[dataset_name] = dataset_path
+
 
     def _determine_dataset_name(self, dataset_path):
 
@@ -80,11 +63,11 @@ class DatasetManager:
         # If there's already a dataset saved with the target name,
         # we'll want to add a suffix to it so we can tell them apart
         # when querying.
-        if dataset_name in self._datasets.keys():
+        if dataset_name in self.keys():
 
             suffix = 2
 
-            while f"{dataset_name}{suffix}" in self._datasets.keys():
+            while f"{dataset_name}{suffix}" in self.keys():
 
                 suffix += 1
 
@@ -97,22 +80,18 @@ class DatasetManager:
         for dataset_name in selected_datasets:
 
             # TODO cater.py should be checking this. Is this even possible?
-            if dataset_name in self._datasets.keys():
+            if dataset_name in self.keys():
 
-                dataset_path = self._datasets[dataset_name]
+                dataset_path = self[dataset_name]
 
                 # Not sure how the dataset would go missing
                 # (barring the user manually deleting it,)
                 # but airing on the side of caution.
                 dataset_path.unlink(missing_ok=True)
 
-                del self._datasets[dataset]
+                del self[dataset_name]
 
-    def get_dataset_names(self):
-
-        return list(self._datasets.keys())
-
-    def export_datasets(self, datasets):
+    def export_datasets(self, *datasets):
 
         dir_name = self._DEFAULT_SAVE_DIR
 
@@ -131,12 +110,13 @@ class DatasetManager:
         # just to be safe.
         for dataset_name in datasets:
 
-            dataset_path = self._datasets[dataset_name]
+            dataset_path = self[dataset_name]
 
             # TODO cater.py should determine how the user wants to save the files.
             # E.g. if they want .feather files they should be able to specify that,
             # rather than defaulting to .csv.
 
-            dataset_save_path = save_dir.joinpath(dataset_path.with_suffix(".csv"))
+            dataset_save_path = save_dir.joinpath(dataset_path.with_suffix(".csv").name)
 
-            shutil.copy(dataset_path, dataset_save_path)
+            pd.read_feather(dataset_path).to_csv(dataset_save_path,index=False)
+

@@ -9,7 +9,7 @@ class AppUI(psg.Window):
         psg.ChangeLookAndFeel("Dark")
 
         psg.SetOptions(
-            element_padding=(0, 0), button_element_size=(20, 1), auto_size_buttons=False
+            element_padding=(0, 0), button_element_size=(15, 1), auto_size_buttons=False
         )
 
         super().__init__(title="Cater", layout=AppUILayout())
@@ -20,29 +20,39 @@ class AppUI(psg.Window):
 
         while True:
 
-            (event, value) = self.read()
+            (event, values) = self.read(timeout=100)
 
             if event == AppUILayout.EXIT or event == psg.WIN_CLOSED:
 
                 break  # exit button clicked
 
-            elif event != "__TIMEOUT__" and event in self._control_action_dict.keys():
+            elif event in self._control_action_dict.keys():
 
                 self._control_action_dict[event]()
 
+            self._review_control_state()
+
         self.close()
 
-    def set_control_visibility(self, is_visible, *control_keys):
+    def _review_control_state(self):
 
-        for control_key in control_keys:
+        # Is there a better way to do this?
+        is_empty = lambda val: val is None or len(val) == 0 or (isinstance(val,str) and len(val.strip()) == 0)
 
-            self[control_key].Update(visible=is_visible)
+        theres_no_datasets = is_empty(self[AppUILayout.LB_DATASETS].GetIndexes())
 
-    def set_control_disability(self, is_disabled, *control_keys):
+        theres_no_results = is_empty(self[AppUILayout.ML_RSLT].Get())
 
-        for control_key in control_keys:
+        target_button_is_disabled_dict = {
+            AppUILayout.REMOVE_DATASET : theres_no_datasets,
+            AppUILayout.EXPORT_DATASET : theres_no_datasets,
+            AppUILayout.REPORTING : theres_no_datasets,
+            AppUILayout.ADD_RESULTS_TO_DATASETS : theres_no_results
+        }
 
-            self[control_key].Update(disabled=is_disabled)
+        for button_key, is_disabled in target_button_is_disabled_dict.items():
+
+            self[button_key].Update(disabled=is_disabled)
 
     def reset(self):
 

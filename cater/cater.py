@@ -30,10 +30,11 @@ class Cater:
         self._create_resources()
 
         self._callback_dict = {
-            AppUILayout.BTN_GO: self._execute_query,
+            AppUILayout.EXECUTE: self._execute_query,
             AppUILayout.SAVE_WORKSPACE: self._save_workspace,
             AppUILayout.LOAD_WORKSPACE: self._load_workspace,
             AppUILayout.ADD_DATASET: self._add_dataset,
+            AppUILayout.ADD_RESULTS_TO_DATASETS: self._add_results_as_dataset,
             AppUILayout.REMOVE_DATASET: self._remove_dataset,
             AppUILayout.EXPORT_DATASET: self._export_dataset,
             AppUILayout.DATACOMPY_REPORT: self._generate_datacompy_report,
@@ -41,6 +42,8 @@ class Cater:
         }
 
         self._app_ui = AppUI(self._callback_dict)
+
+        self._current_results_df = None
 
     def _execute_query(self):
 
@@ -52,13 +55,15 @@ class Cater:
 
             dfs = {
                 df_name: pd.read_feather(df_path)
-                for df_name, df_path in self._dataset_manager.get_datasets().items()
+                for df_name, df_path in self._dataset_manager.items()
                 if df_name in query
             }
 
             result = self._query_executor.execute_query_against_dfs(query=query, dfs=dfs)
 
             self._app_ui[AppUILayout.ML_RSLT].Update(tabulate(result,headers='keys',tablefmt='fancy_grid',showindex=False))
+
+            self._current_results_df = result
 
     def _save_workspace(self):
 
@@ -73,7 +78,7 @@ class Cater:
     def _load_workspace(self):
 
         # TODO In the future workspace files wont be dirs.
-        workspace_path = self._input_manager.get_filepath_input(message='Select Workspace')
+        workspace_path = self._input_manager.get_directory_input(message='Select Workspace')
 
         if workspace_path:
 
@@ -81,7 +86,7 @@ class Cater:
 
                 if self._input_manager.get_user_confirmation(
                     prompt="It looks like there's already a workspace- would you like to save it before continuing?"
-                ):
+                ) == InputManager.YES:
 
                     self._save_workspace()
 
@@ -94,7 +99,7 @@ class Cater:
             # Is there any reason to believe rglob would be necessary here?
             # I would only think it was if the user manually went in and changed the workspace
             # while cater was running, but how likely is that?
-            self._load_datasets(workspace_path.glob("*.feather"))
+            self._load_datasets(*list(workspace_path.glob("*.feather")))
 
     def _add_dataset(self):
 
@@ -118,6 +123,26 @@ class Cater:
 
             self._load_datasets(*file_paths)
 
+    def _add_results_as_dataset(self):
+
+        if self._current_results_df is not None:
+
+            dataset_name = self._input_manager.get_user_text_input('Dataset Name?')
+
+            while dataset_name in self._dataset_manager.keys():
+
+                dataset_name = self._input_manager.get_user_text_input('That dataset name is already being used. Please use another.')
+
+            if dataset_name is not None:
+
+                dataset_path = Path(self._workspace_manager.get_workspace_path().name).joinpath(f'{dataset_name}.feather')
+
+                self._current_results_df.to_feather(dataset_path)
+
+                self._dataset_manager[dataset_name] = dataset_path
+
+                self._app_ui[AppUILayout.LB_DATASETS].Update(self._dataset_manager.keys())
+
     def _load_datasets(self, *dataset_paths):
 
         """
@@ -136,26 +161,27 @@ class Cater:
             self._workspace_manager.get_workspace_path(), *dataset_paths
         )
 
-        self._app_ui.update_datasets(self._dataset_manager.get_dataset_names())
+        self._app_ui.update_datasets(self._dataset_manager.keys())
 
     def _remove_dataset(self):
 
-        """
-        give user pop up with list of options
-        get user selections for which to remove
-        for each selection
-            remove from local dict
-            remove from tmp dir
-        """
-        selected_datasets = self._input_manager.get_user_selections(
-            self._dataset_manager.get_dataset_names()
-        )
+        selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
 
-        if selected_datasets:
+        if selection_indexes:
 
-            self._dataset_manager.remove_datasets(selected_datasets)
+            dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
 
-            self._app_ui.update_datasets(self._dataset_manager.get_dataset_names())
+            selected_datasets = [
+                dataset_names[dataset_index]
+                for dataset_index
+                in selection_indexes
+            ]
+
+            if self._input_manager.get_user_confirmation(f'Really remove the following {len(selected_datasets)} datasets? {", ".join(selected_datasets)}') == InputManager.YES:
+
+                self._dataset_manager.remove_datasets(selected_datasets)
+
+                self._app_ui.update_datasets(self._dataset_manager.keys())
 
     def _export_dataset(self):
 
@@ -165,13 +191,25 @@ class Cater:
         get save path from user
         save dataset
         """
-        selected_datasets = self._input_manager.get_user_selections(
-            self._dataset_manager.get_dataset_names()
-        )
+        selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
 
-        if selected_datasets:
+        if selection_indexes:
 
-            self._dataset_manager.export_datasets(selected_datasets)
+            dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
+
+            selected_datasets = [
+                dataset_names[dataset_index]
+                for dataset_index
+                in selection_indexes
+            ]
+
+            if len(selected_datasets) == len(self._dataset_manager.keys()):
+
+                self._export_workspace()
+
+            else:
+
+                self._dataset_manager.export_datasets(*selected_datasets)
 
     def _generate_datacompy_report(self):
 
@@ -185,13 +223,20 @@ class Cater:
         """
 
         selected_datasets = self._input_manager.get_user_selections(
-            self._dataset_manager.get_dataset_names(), limit=2
+            self._dataset_manager.keys(), limit=2
         )
 
         if selected_datasets:
 
+            selected_datasets = dict(
+                filter(
+                    lambda dataset_entry: dataset_entry[0] in selected_datasets,
+                    self._dataset_manager.items(),
+                )
+            )            
+
             return self._report_generator.generate_datacompy_report(
-                self._dataset_manager.get_datasets(selected_datasets)
+                selected_datasets
             )
 
     def _generate_pandas_profiling_report(self):
@@ -207,7 +252,7 @@ class Cater:
         """
 
         selected_dataset = self._input_manager.get_user_selections(
-            self._dataset_manager.get_dataset_names(), limit=1
+            self._dataset_manager.keys(), limit=1
         )
 
         if selected_dataset:
@@ -238,12 +283,3 @@ class Cater:
 
         self._app_ui.start()
 
-    def process_request(self, event, values):
-
-        try:
-
-            return self._callback_dict[event]()
-
-        except Exception as e:
-
-            return e

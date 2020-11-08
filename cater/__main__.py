@@ -14,6 +14,8 @@ if __name__ == "__main__":
 
     try:
 
+        # Without this, we get repeated warnings from matplotlib
+        # when generating the pandas profiling report.
         matplotlib.use("Agg")
 
         Cater().start()
