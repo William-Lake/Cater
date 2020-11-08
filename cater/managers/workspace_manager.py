@@ -1,5 +1,6 @@
 import os
 import shutil
+from pathlib import Path
 
 from tempfile import TemporaryDirectory
 
@@ -17,7 +18,7 @@ class WorkspaceManager:
 
         dir_is_empty = True
 
-        for item in Path(self._tmp_dir).iterdir():
+        for item in Path(self._tmp_dir.name).iterdir():
 
             dir_is_empty = False
 
@@ -34,7 +35,7 @@ class WorkspaceManager:
         # so change the extension to .zip, unzip, remove the .zip file,
         # then load.
 
-        shutil.copytree(workspace_path, self._tmp_dir)
+        shutil.copytree(workspace_path, self._tmp_dir.name)
 
     def get_workspace_path(self):
 
@@ -44,4 +45,6 @@ class WorkspaceManager:
 
         # TODO .zip this up after copying, then change the extension to .cater
 
-        shutil.copytree(self._tmp_dir, workspace_path)
+        print(workspace_path)
+
+        shutil.copytree(self._tmp_dir.name, workspace_path)

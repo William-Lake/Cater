@@ -54,19 +54,22 @@ class DatasetManager:
             # If the dataset is already in the workspace, no need to load it.
             if dataset_path.parent != workspace_path:
 
-                read_func = self.file_ext_read_funcs(dataset.suffix)
+                read_func = self.file_ext_read_funcs[dataset_path.suffix]
 
                 # TODO try/except
                 # TODO Address different params each read method allows.
 
-                df = read_func(dataset_path)
+                df = read_func(dataset_path.as_posix())
 
+                # workspace_path is tempfile.Temporary_Directory which is why we have to turn it into a Path object before using .joinpath.
                 # E.g. /path/data.csv --> /workspace/data.feather
-                new_file_path = workspace_path.joinpath(
-                    dataset_path.withsuffix(".feather")
+                new_file_path = Path(workspace_path.name).joinpath(
+                    dataset_path.with_suffix(".feather").name
                 )
 
                 df.to_feather(new_file_path)
+
+                dataset_path = new_file_path
 
             self._datasets[dataset_name] = dataset_path
 
@@ -134,6 +137,6 @@ class DatasetManager:
             # E.g. if they want .feather files they should be able to specify that,
             # rather than defaulting to .csv.
 
-            dataset_save_path = save_dir.joinpath(dataset_path.withsuffix(".csv"))
+            dataset_save_path = save_dir.joinpath(dataset_path.with_suffix(".csv"))
 
             shutil.copy(dataset_path, dataset_save_path)

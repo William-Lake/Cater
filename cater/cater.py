@@ -3,6 +3,8 @@ from threading import Thread
 
 import pandas as pd
 import PySimpleGUI as psg
+from tabulate import tabulate
+import sqlparse
 
 from ui.app_ui import AppUI
 from ui.layout.app_ui_layout import AppUILayout
@@ -44,19 +46,25 @@ class Cater:
 
         query = self._app_ui[AppUILayout.ML_SQL].Get()
 
-        dfs = {
-            df_name: pd.read_feather(df_path)
-            for df_name, df_path in self._dataset_manager.get_datasets().items()
-            if df_name in query
-        }
+        if query:
 
-        return self._query_executor.execute_query_against_dfs(query=query, dfs=dfs)
+            self._app_ui[AppUILayout.ML_SQL].Update(sqlparse.format(query,reindent=True, keyword_case='lower'))
+
+            dfs = {
+                df_name: pd.read_feather(df_path)
+                for df_name, df_path in self._dataset_manager.get_datasets().items()
+                if df_name in query
+            }
+
+            result = self._query_executor.execute_query_against_dfs(query=query, dfs=dfs)
+
+            self._app_ui[AppUILayout.ML_RSLT].Update(tabulate(result,headers='keys',tablefmt='fancy_grid',showindex=False))
 
     def _save_workspace(self):
 
         if not self._workspace_manager.is_empty():
 
-            filepath = self._input_manager.get_filepath_input()
+            filepath = self._input_manager.get_filepath_input(message='Select Workspace',save_as=True)
 
             if filepath:
 
@@ -65,7 +73,7 @@ class Cater:
     def _load_workspace(self):
 
         # TODO In the future workspace files wont be dirs.
-        workspace_path = self._input_manager.get_filepath_input(is_directory=True)
+        workspace_path = self._input_manager.get_filepath_input(message='Select Workspace')
 
         if workspace_path:
 
@@ -103,7 +111,7 @@ class Cater:
             alert the user they can't use that thing as a datasource
         """
 
-        file_paths = self._input_manager.get_filepath_input(multiple_files=True)
+        file_paths = self._input_manager.get_filepath_input(message='Select dataset(s)',multiple_files=True)
 
         # if not empty and not None
         if file_paths:
@@ -204,7 +212,7 @@ class Cater:
 
         if selected_dataset:
 
-            save_path = self._input_manager.get_filepath_input(save_as=True)
+            save_path = self._input_manager.get_filepath_input(message='Save Pandas Profiling Report as...',save_as=True)
 
             # TODO Should the user be alerted that their report wont be generated if they dont provide a save path?
             if save_path:

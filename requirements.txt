@@ -5,3 +5,5 @@ black
 pandas-profiling
 pandasql
 sqlparse
+pyarrow
+tabulate

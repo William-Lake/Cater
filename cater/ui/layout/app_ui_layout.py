@@ -54,7 +54,7 @@ class AppUILayout(list):
         dataset_container = psg.Listbox(
             [],
             key=self.LB_DATASETS,
-            size=(62, 3),
+            size=(62, 10),
             background_color="#FCC7EB",
             text_color="#96433B",
         )
