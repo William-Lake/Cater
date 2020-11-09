@@ -13,6 +13,7 @@ from doers.query_executor import QueryExecutor
 from managers.dataset_manager import DatasetManager
 from managers.workspace_manager import WorkspaceManager
 from managers.input_manager import InputManager
+from ui.reporting_dialog import ReportingDialog
 
 
 class Cater:
@@ -37,13 +38,26 @@ class Cater:
             AppUILayout.ADD_RESULTS_TO_DATASETS: self._add_results_as_dataset,
             AppUILayout.REMOVE_DATASET: self._remove_dataset,
             AppUILayout.EXPORT_DATASET: self._export_dataset,
-            AppUILayout.DATACOMPY_REPORT: self._generate_datacompy_report,
-            AppUILayout.PANDAS_PROFILING_REPORT: self._generate_pandas_profiling_report,
+            AppUILayout.REPORTING: self._generate_report,
         }
 
         self._app_ui = AppUI(self._callback_dict)
 
         self._current_results_df = None
+
+    def _generate_report(self):
+
+        '''
+        get the selected datasets
+        ask the user what reports they want to generate
+        if they want to generate a pandas profiling report
+        '''
+
+        planned_reports = ReportingDialog(list(self._dataset_manager.keys())).start()
+
+        print(planned_reports)
+
+                
 
     def _execute_query(self):
 
@@ -51,7 +65,9 @@ class Cater:
 
         if query:
 
-            self._app_ui[AppUILayout.ML_SQL].Update(sqlparse.format(query,reindent=True, keyword_case='lower'))
+            self._app_ui[AppUILayout.ML_SQL].Update(
+                sqlparse.format(query, reindent=True, keyword_case="lower")
+            )
 
             dfs = {
                 df_name: pd.read_feather(df_path)
@@ -59,9 +75,13 @@ class Cater:
                 if df_name in query
             }
 
-            result = self._query_executor.execute_query_against_dfs(query=query, dfs=dfs)
+            result = self._query_executor.execute_query_against_dfs(
+                query=query, dfs=dfs
+            )
 
-            self._app_ui[AppUILayout.ML_RSLT].Update(tabulate(result,headers='keys',tablefmt='fancy_grid',showindex=False))
+            self._app_ui[AppUILayout.ML_RSLT].Update(
+                tabulate(result, headers="keys", tablefmt="fancy_grid", showindex=False)
+            )
 
             self._current_results_df = result
 
@@ -69,7 +89,9 @@ class Cater:
 
         if not self._workspace_manager.is_empty():
 
-            filepath = self._input_manager.get_filepath_input(message='Select Workspace',save_as=True)
+            filepath = self._input_manager.get_filepath_input(
+                message="Select Workspace", save_as=True
+            )
 
             if filepath:
 
@@ -78,15 +100,20 @@ class Cater:
     def _load_workspace(self):
 
         # TODO In the future workspace files wont be dirs.
-        workspace_path = self._input_manager.get_directory_input(message='Select Workspace')
+        workspace_path = self._input_manager.get_directory_input(
+            message="Select Workspace"
+        )
 
         if workspace_path:
 
             if not self._workspace_manager.is_empty():
 
-                if self._input_manager.get_user_confirmation(
-                    prompt="It looks like there's already a workspace- would you like to save it before continuing?"
-                ) == InputManager.YES:
+                if (
+                    self._input_manager.get_user_confirmation(
+                        prompt="It looks like there's already a workspace- would you like to save it before continuing?"
+                    )
+                    == InputManager.YES
+                ):
 
                     self._save_workspace()
 
@@ -116,7 +143,9 @@ class Cater:
             alert the user they can't use that thing as a datasource
         """
 
-        file_paths = self._input_manager.get_filepath_input(message='Select dataset(s)',multiple_files=True)
+        file_paths = self._input_manager.get_filepath_input(
+            message="Select dataset(s)", multiple_files=True
+        )
 
         # if not empty and not None
         if file_paths:
@@ -127,21 +156,27 @@ class Cater:
 
         if self._current_results_df is not None:
 
-            dataset_name = self._input_manager.get_user_text_input('Dataset Name?')
+            dataset_name = self._input_manager.get_user_text_input("Dataset Name?")
 
             while dataset_name in self._dataset_manager.keys():
 
-                dataset_name = self._input_manager.get_user_text_input('That dataset name is already being used. Please use another.')
+                dataset_name = self._input_manager.get_user_text_input(
+                    "That dataset name is already being used. Please use another."
+                )
 
             if dataset_name is not None:
 
-                dataset_path = Path(self._workspace_manager.get_workspace_path().name).joinpath(f'{dataset_name}.feather')
+                dataset_path = Path(
+                    self._workspace_manager.get_workspace_path().name
+                ).joinpath(f"{dataset_name}.feather")
 
                 self._current_results_df.to_feather(dataset_path)
 
                 self._dataset_manager[dataset_name] = dataset_path
 
-                self._app_ui[AppUILayout.LB_DATASETS].Update(self._dataset_manager.keys())
+                self._app_ui[AppUILayout.LB_DATASETS].Update(
+                    self._dataset_manager.keys()
+                )
 
     def _load_datasets(self, *dataset_paths):
 
@@ -172,12 +207,15 @@ class Cater:
             dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
 
             selected_datasets = [
-                dataset_names[dataset_index]
-                for dataset_index
-                in selection_indexes
+                dataset_names[dataset_index] for dataset_index in selection_indexes
             ]
 
-            if self._input_manager.get_user_confirmation(f'Really remove the following {len(selected_datasets)} datasets? {", ".join(selected_datasets)}') == InputManager.YES:
+            if (
+                self._input_manager.get_user_confirmation(
+                    f'Really remove the following {len(selected_datasets)} datasets? {", ".join(selected_datasets)}'
+                )
+                == InputManager.YES
+            ):
 
                 self._dataset_manager.remove_datasets(selected_datasets)
 
@@ -198,14 +236,12 @@ class Cater:
             dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
 
             selected_datasets = [
-                dataset_names[dataset_index]
-                for dataset_index
-                in selection_indexes
+                dataset_names[dataset_index] for dataset_index in selection_indexes
             ]
 
             if len(selected_datasets) == len(self._dataset_manager.keys()):
 
-                self._export_workspace()
+                self._save_workspace()
 
             else:
 
@@ -233,11 +269,9 @@ class Cater:
                     lambda dataset_entry: dataset_entry[0] in selected_datasets,
                     self._dataset_manager.items(),
                 )
-            )            
-
-            return self._report_generator.generate_datacompy_report(
-                selected_datasets
             )
+
+            return self._report_generator.generate_datacompy_report(selected_datasets)
 
     def _generate_pandas_profiling_report(self):
 
@@ -252,12 +286,16 @@ class Cater:
         """
 
         selected_dataset = self._input_manager.get_user_selections(
-            self._dataset_manager.keys(), limit=1
+            self._dataset_manager.keys()
         )
+
+        print(selected_dataset)
 
         if selected_dataset:
 
-            save_path = self._input_manager.get_filepath_input(message='Save Pandas Profiling Report as...',save_as=True)
+            save_path = self._input_manager.get_filepath_input(
+                message="Save Pandas Profiling Report as...", save_as=True
+            )
 
             # TODO Should the user be alerted that their report wont be generated if they dont provide a save path?
             if save_path:
@@ -282,4 +320,3 @@ class Cater:
         """Starts the app."""
 
         self._app_ui.start()
-

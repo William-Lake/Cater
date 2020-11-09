@@ -2,32 +2,57 @@ import PySimpleGUI as psg
 
 
 class SelectionsDialog(psg.Window):
-    def __init__(self, *choices, limit=None):
 
-        super().__init__("Selections", self._create_layout(*choices))
+    OK = "OK"
+    CANCEL = "CANCEL"
 
-        return self.start(limit)
+    def __init__(self, *choices):
 
-    def _create_layout(self, *choices):
+        self._choices = choices
 
-        self._checkboxes = {choice: psg.Checkbox(choice) for choice in choices}
+        super().__init__("Choose at least one option...", self._create_layout())
 
-        return [list(self._checkboxes.values())]
+    def _create_layout(self):
 
-    def start(self, limit):
+        self._checkboxes = {choice: psg.Checkbox(choice) for choice in self._choices}
+
+        return [
+            list(self._checkboxes.values()),
+            [psg.Button(self.OK), psg.Button(self.CANCEL)],
+        ]
+
+    def start(self, limit=1):
+
+        selections = None
 
         while True:
 
             event, values = self.read()
 
-            if event == psg.WIN_CLOSED:
+            if event == psg.WIN_CLOSED or event == self.CANCEL:
 
                 break
 
-        selections = [col for col, chk in self._checkboxes.items() if chk.Get()]
+            elif event == self.OK:
 
-        if len(selections) != limit:
+                selections = [selection for selection, chk in self._checkboxes.items() if chk.Get()]
 
-            psg.PopupError(f"You must select {limit} options.")
+                break
 
-            return self._start(limit)
+        self.close()
+
+        if selections is not None and len(selections) != limit:
+
+            if len(selections) != limit:
+
+                message = (
+                    f"You must select {limit} options."
+                    if limit > 1
+                    else "You must select at least one option."
+                )
+
+                psg.PopupError(message)
+
+                return SelectionsDialog(*self._choices).start(limit=limit)
+
+        return selections

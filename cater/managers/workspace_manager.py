@@ -35,7 +35,7 @@ class WorkspaceManager:
         # so change the extension to .zip, unzip, remove the .zip file,
         # then load.
 
-        shutil.copytree(workspace_path, self._tmp_dir.name,dirs_exist_ok=True)
+        shutil.copytree(workspace_path, self._tmp_dir.name, dirs_exist_ok=True)
 
     def get_workspace_path(self):
 

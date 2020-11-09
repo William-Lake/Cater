@@ -37,17 +37,23 @@ class AppUI(psg.Window):
     def _review_control_state(self):
 
         # Is there a better way to do this?
-        is_empty = lambda val: val is None or len(val) == 0 or (isinstance(val,str) and len(val.strip()) == 0)
+        is_empty = (
+            lambda val: val is None
+            or len(val) == 0
+            or (isinstance(val, str) and len(val.strip()) == 0)
+        )
 
-        theres_no_datasets = is_empty(self[AppUILayout.LB_DATASETS].GetIndexes())
+        theres_no_datasets = is_empty(self[AppUILayout.LB_DATASETS].GetListValues())
+
+        theres_no_datasets_selected = is_empty(self[AppUILayout.LB_DATASETS].GetIndexes())
 
         theres_no_results = is_empty(self[AppUILayout.ML_RSLT].Get())
 
         target_button_is_disabled_dict = {
-            AppUILayout.REMOVE_DATASET : theres_no_datasets,
-            AppUILayout.EXPORT_DATASET : theres_no_datasets,
-            AppUILayout.REPORTING : theres_no_datasets,
-            AppUILayout.ADD_RESULTS_TO_DATASETS : theres_no_results
+            AppUILayout.REMOVE_DATASET: theres_no_datasets_selected,
+            AppUILayout.EXPORT_DATASET: theres_no_datasets_selected,
+            AppUILayout.REPORTING: theres_no_datasets,
+            AppUILayout.ADD_RESULTS_TO_DATASETS: theres_no_results,
         }
 
         for button_key, is_disabled in target_button_is_disabled_dict.items():

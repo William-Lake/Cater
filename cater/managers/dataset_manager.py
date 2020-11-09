@@ -55,7 +55,6 @@ class DatasetManager(dict):
 
             self[dataset_name] = dataset_path
 
-
     def _determine_dataset_name(self, dataset_path):
 
         dataset_name = dataset_path.stem
@@ -118,5 +117,4 @@ class DatasetManager(dict):
 
             dataset_save_path = save_dir.joinpath(dataset_path.with_suffix(".csv").name)
 
-            pd.read_feather(dataset_path).to_csv(dataset_save_path,index=False)
-
+            pd.read_feather(dataset_path).to_csv(dataset_save_path, index=False)

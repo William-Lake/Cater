@@ -21,11 +21,3 @@ At the moment (11/8/2020) Numpy doesn't play well with python 3.9. Here's a snip
 >
 >Sept 14, 2020 – Python 3.9 will be released in a few weeks. If you are an early adopter of Python versions, you may be dissapointed to find that NumPy (and other binary packages like SciPy) will not have binary wheels ready on the day of the release. It is a major effort to adapt the build infrastructure to a new Python version and it typically takes a few weeks for the packages to appear on PyPI and conda-forge.
 
-## Usage
-
-1. Clone the repo.
-2. If you'd like, create a virtual environment.
-3. Install the requirements via `pip install -r requirements.txt`
-4. Run `python cater`.
-
-TODO: Add'l steps re: bassic and advanced functionality.
