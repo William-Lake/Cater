@@ -12,67 +12,71 @@ CSV = "CSV"
 
 
 class ReportGenerator:
-    def generate_datacompy_report(self, **kwargs):
 
-        first_csv = kwargs[FIRST_CSV]
+    _DATACOMPY_REPORT = "Datacompy"
+    _PANDAS_PROFILING_REPORT = "Pandas Profiling"
 
-        second_csv = kwargs[SECOND_CSV]
+    def __init__(self):
 
-        df1, df1_name = self._get_df_and_name_from_csv(first_csv)
+        self._report_func_dict = {
+            self._DATACOMPY_REPORT: self._generate_datacompy_report,
+            self._PANDAS_PROFILING_REPORT: self._generate_pandas_profiling_report,
+        }
 
-        df2, df2_name = self._get_df_and_name_from_csv(second_csv)
-
-        # TODO The user should get a say in this.
-        join_columns = df1.columns
-
-        comparison = Compare(
-            df1, df2, join_columns=join_columns, df1_name=df1_name, df2_name=df2_name
-        )
+    def generate_reports(self, **report_data):
 
         timestamp = str(datetime.now().timestamp())
 
-        data_dir = f"Datacompy_{timestamp}"
+        self._data_dir = Path(f"Reports_{timestamp}")
 
-        os.mkdir(data_dir)
+        self._data_dir.mkdir()
+
+        for report_type, report_option_list in report_data.items():
+
+            for report_options in report_option_list:
+
+                self._report_func_dict[report_type](**report_options)
+
+        return self._data_dir
+
+    def _generate_datacompy_report(self, **kwargs):
+
+        df1_name, df2_name = [Path(df).stem for df in kwargs["dfs"]]
+
+        df1, df2 = [pd.read_feather(df) for df in kwargs["dfs"]]
+
+        join_columns = kwargs["join_columns"]
+
+        comparison = Compare(
+            df1,
+            df2,
+            join_columns=join_columns,
+            df1_name=df1_name,
+            df2_name=df2_name,
+        )
 
         report_name_data_dict = {
-            os.path.join(data_dir, "Intersection.csv"): comparison.intersect_rows,
-            os.path.join(data_dir, "Only In First.csv"): comparison.df1_unq_rows,
-            os.path.join(data_dir, "Only In Second.csv"): comparison.df2_unq_rows,
+            self._data_dir.joinpath("Intersection.csv"): comparison.intersect_rows,
+            self._data_dir.joinpath("Only In First.csv"): comparison.df1_unq_rows,
+            self._data_dir.joinpath("Only In Second.csv"): comparison.df2_unq_rows,
         }
 
         for name, df in report_name_data_dict.items():
 
             df.to_csv(name)
 
-        with open(os.path.join(data_dir, "Report.txt"), "w+") as out_file:
+        with open(self._data_dir.joinpath("Report.txt"), "w+") as out_file:
 
             out_file.write(comparison.report())
 
-        return data_dir
+    def _generate_pandas_profiling_report(self, **kwargs):
 
-    def generate_pandas_profiling_report(self, **kwargs):
+        df = kwargs["df"]
 
-        target_csv = kwargs[CSV]
+        report_title = Path(df).stem + ".html"
 
-        df = pd.read_csv(target_csv)
-
-        report_title = Path(target_csv).stem
+        df = pd.read_feather(df)
 
         report = ProfileReport(df, title=report_title)
 
-        timestamp = str(datetime.now().timestamp())
-
-        report_title = f"{report.title}_{timestamp}.html"
-
-        report.to_file(report_title)
-
-        return report_title
-
-    def _get_df_and_name_from_csv(self, csv_file):
-
-        df = pd.read_csv(csv_file)
-
-        name = Path(csv_file).stem
-
-        return df, name
+        report.to_file(self._data_dir.joinpath(report_title))

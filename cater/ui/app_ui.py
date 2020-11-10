@@ -45,7 +45,9 @@ class AppUI(psg.Window):
 
         theres_no_datasets = is_empty(self[AppUILayout.LB_DATASETS].GetListValues())
 
-        theres_no_datasets_selected = is_empty(self[AppUILayout.LB_DATASETS].GetIndexes())
+        theres_no_datasets_selected = is_empty(
+            self[AppUILayout.LB_DATASETS].GetIndexes()
+        )
 
         theres_no_results = is_empty(self[AppUILayout.ML_RSLT].Get())
 

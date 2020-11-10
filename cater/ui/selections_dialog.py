@@ -35,7 +35,11 @@ class SelectionsDialog(psg.Window):
 
             elif event == self.OK:
 
-                selections = [selection for selection, chk in self._checkboxes.items() if chk.Get()]
+                selections = [
+                    selection
+                    for selection, chk in self._checkboxes.items()
+                    if chk.Get()
+                ]
 
                 break
 

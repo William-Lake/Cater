@@ -47,17 +47,15 @@ class Cater:
 
     def _generate_report(self):
 
-        '''
+        """
         get the selected datasets
         ask the user what reports they want to generate
         if they want to generate a pandas profiling report
-        '''
+        """
 
-        planned_reports = ReportingDialog(list(self._dataset_manager.keys())).start()
+        report_data = ReportingDialog(self._dataset_manager).start()
 
-        print(planned_reports)
-
-                
+        self._report_generator.generate_reports(**report_data)
 
     def _execute_query(self):
 
@@ -89,7 +87,7 @@ class Cater:
 
         if not self._workspace_manager.is_empty():
 
-            filepath = self._input_manager.get_filepath_input(
+            filepath = InputManager.get_filepath_input(
                 message="Select Workspace", save_as=True
             )
 
@@ -100,16 +98,14 @@ class Cater:
     def _load_workspace(self):
 
         # TODO In the future workspace files wont be dirs.
-        workspace_path = self._input_manager.get_directory_input(
-            message="Select Workspace"
-        )
+        workspace_path = InputManager.get_directory_input(message="Select Workspace")
 
         if workspace_path:
 
             if not self._workspace_manager.is_empty():
 
                 if (
-                    self._input_manager.get_user_confirmation(
+                    InputManager.get_user_confirmation(
                         prompt="It looks like there's already a workspace- would you like to save it before continuing?"
                     )
                     == InputManager.YES
@@ -143,7 +139,7 @@ class Cater:
             alert the user they can't use that thing as a datasource
         """
 
-        file_paths = self._input_manager.get_filepath_input(
+        file_paths = InputManager.get_filepath_input(
             message="Select dataset(s)", multiple_files=True
         )
 
@@ -156,11 +152,11 @@ class Cater:
 
         if self._current_results_df is not None:
 
-            dataset_name = self._input_manager.get_user_text_input("Dataset Name?")
+            dataset_name = InputManager.get_user_text_input("Dataset Name?")
 
             while dataset_name in self._dataset_manager.keys():
 
-                dataset_name = self._input_manager.get_user_text_input(
+                dataset_name = InputManager.get_user_text_input(
                     "That dataset name is already being used. Please use another."
                 )
 
@@ -211,7 +207,7 @@ class Cater:
             ]
 
             if (
-                self._input_manager.get_user_confirmation(
+                InputManager.get_user_confirmation(
                     f'Really remove the following {len(selected_datasets)} datasets? {", ".join(selected_datasets)}'
                 )
                 == InputManager.YES
@@ -258,7 +254,7 @@ class Cater:
             return the dir the report is located in
         """
 
-        selected_datasets = self._input_manager.get_user_selections(
+        selected_datasets = InputManager.get_user_selections(
             self._dataset_manager.keys(), limit=2
         )
 
@@ -285,7 +281,7 @@ class Cater:
             return the name of the report
         """
 
-        selected_dataset = self._input_manager.get_user_selections(
+        selected_dataset = InputManager.get_user_selections(
             self._dataset_manager.keys()
         )
 
@@ -293,7 +289,7 @@ class Cater:
 
         if selected_dataset:
 
-            save_path = self._input_manager.get_filepath_input(
+            save_path = InputManager.get_filepath_input(
                 message="Save Pandas Profiling Report as...", save_as=True
             )
 
@@ -309,8 +305,6 @@ class Cater:
         self._dataset_manager = DatasetManager()
 
         self._workspace_manager = WorkspaceManager()
-
-        self._input_manager = InputManager()
 
         self._report_generator = ReportGenerator()
 

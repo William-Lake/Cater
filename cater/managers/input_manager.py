@@ -10,7 +10,8 @@ class InputManager:
     YES = "Yes"
     NO = "No"
 
-    def get_filepath_input(self, **kwargs):
+    @staticmethod
+    def get_filepath_input(**kwargs):
 
         if "no_window" not in kwargs.keys() or not kwargs["no_window"]:
 
@@ -29,7 +30,8 @@ class InputManager:
 
         return selected_paths
 
-    def get_directory_input(self, **kwargs):
+    @staticmethod
+    def get_directory_input(**kwargs):
 
         if "no_window" not in kwargs.keys() or not kwargs["no_window"]:
 
@@ -45,14 +47,17 @@ class InputManager:
 
         return selected_directory
 
-    def get_user_confirmation(self, prompt):
+    @staticmethod
+    def get_user_confirmation(prompt):
 
         return psg.PopupYesNo(prompt, button_color=("#E0FBFC", "#1982C4"))
 
-    def get_user_selections(self, *choices, limit=1):
+    @staticmethod
+    def get_user_selections(*choices, limit=1):
 
         return SelectionsDialog(*choices).start(limit=limit)
 
-    def get_user_text_input(self, prompt):
+    @staticmethod
+    def get_user_text_input(prompt):
 
         return psg.PopupGetText(prompt, button_color=("#E0FBFC", "#DE1A1A"))
