@@ -9,17 +9,34 @@ from cater import Cater
 if __name__ == "__main__":
     """Main Method"""
 
-    # TODO Some better exception handling that wont result in
-    #
+    from managers.config_manager import ConfigManager
 
-    try:
+    cm = ConfigManager()
 
-        # Without this, we get repeated warnings from matplotlib
-        # when generating the pandas profiling report.
-        matplotlib.use("Agg")
+    # cm.save_info('datasets',**{'name':'test','path':'test.csv','columns':'A &&& B'})
 
-        Cater().start()
+    # cm.save_info('other',**{'a':1})
 
-    except Exception as e:
+    from pathlib import Path
 
-        traceback.print_exc()
+    # cm.save(Path('test'))
+
+    cm.load(Path('test'))
+
+    print(cm.get_info('datasets'))
+
+    print(cm.get_info('other'))
+
+    
+
+    # try:
+
+    #     # Without this, we get repeated warnings from matplotlib
+    #     # when generating the pandas profiling report.
+    #     matplotlib.use("Agg")
+
+    #     Cater().start()
+
+    # except Exception as e:
+
+    #     traceback.print_exc()

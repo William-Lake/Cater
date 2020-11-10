@@ -7,3 +7,4 @@ pandasql
 sqlparse
 pyarrow
 tabulate
+dataset
