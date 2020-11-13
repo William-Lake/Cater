@@ -2,28 +2,23 @@ import PySimpleGUI as psg
 
 
 class ReportingDialogLayout(list):
+    """The layout for the ReportingDialog.
+    """
 
     LB_DATASETS = "LB_DATASETS"
     LB_PLANNED_REPORTS = "LB_PLANNED_REPORTS"
-    DATACOMPY_REPORT = "Datacompy"
-    PANDAS_PROFILING_REPORT = "Pandas Profiling"
-    REMOVE_REPORT = "Remove"
+    BTN_DATACOMPY_REPORT = "Datacompy"
+    BTN_PANDAS_PROFILING_REPORT = "Pandas Profiling"
+    BTN_REMOVE_REPORT = "Remove"
 
-    GENERATE_REPORTS = "Generate Reports"
-    CANCEL = "Cancel"
+    BTN_GENERATE_REPORTS = "Generate Reports"
+    BTN_CANCEL = "Cancel"
 
     def __init__(self, datasets):
+        """Constructor, creates the layout.
 
-        """
-        frame - report types
-            dataset_container
-            column
-                report buttons
-        frame - planned reports
-            planned reports
-            vtop
-                button - remove
-
+        :param datasets: The datasets to use when creating the layout.
+        :type datasets: dict
         """
 
         dataset_container = psg.Listbox(
@@ -34,12 +29,8 @@ class ReportingDialogLayout(list):
         )
 
         dataset_buttons = [
-            [
-                psg.Button(
-                    self.PANDAS_PROFILING_REPORT
-                )
-            ],
-            [psg.Button(self.DATACOMPY_REPORT)],
+            [psg.Button(self.BTN_PANDAS_PROFILING_REPORT)],
+            [psg.Button(self.BTN_DATACOMPY_REPORT)],
         ]
 
         dataset_buttons_column = psg.vtop(psg.Column(layout=dataset_buttons))
@@ -57,7 +48,7 @@ class ReportingDialogLayout(list):
             select_mode=psg.LISTBOX_SELECT_MODE_EXTENDED,
         )
 
-        remove_report = psg.vtop(psg.Button(self.REMOVE_REPORT))
+        remove_report = psg.vtop(psg.Button(self.BTN_REMOVE_REPORT))
 
         planned_reports_frame = psg.Frame(
             "Planned Reports", layout=[[planned_reports, remove_report]]
@@ -65,4 +56,6 @@ class ReportingDialogLayout(list):
 
         self.append([planned_reports_frame])
 
-        self.append([psg.Button(self.GENERATE_REPORTS), psg.Button(self.CANCEL)])
+        self.append(
+            [psg.Button(self.BTN_GENERATE_REPORTS), psg.Button(self.BTN_CANCEL)]
+        )

@@ -7,10 +7,14 @@ import pandas as pd
 
 
 class DatasetManager(dict):
+    """Manages datasets.
+    """
 
     _DEFAULT_SAVE_DIR = "datasets"
 
     def __init__(self):
+        """Constructor
+        """
 
         # TODO .sql files?
         self.file_ext_read_funcs = {
@@ -28,6 +32,8 @@ class DatasetManager(dict):
         }
 
     def load_datasets(self, workspace_path, *dataset_paths):
+        """Loads the given datasets from the target workspace.
+        """
 
         for dataset_path in dataset_paths:
 
@@ -56,8 +62,15 @@ class DatasetManager(dict):
             self[dataset_name] = dataset_path
 
     def _determine_dataset_name(self, dataset_path):
+        """Determines the best dataset name for the given dataset.
 
-        dataset_name = dataset_path.stem
+        :param dataset_path: The path the dataset exists at.
+        :type dataset_path: pathlib.Path
+        :return: The best name for the given dataset.
+        :rtype: str
+        """
+
+        dataset_name = dataset_path.stem.upper()
 
         # If there's already a dataset saved with the target name,
         # we'll want to add a suffix to it so we can tell them apart
@@ -75,6 +88,11 @@ class DatasetManager(dict):
         return dataset_name
 
     def remove_datasets(self, selected_datasets):
+        """Removes the given datasets from the manager.
+
+        :param selected_datasets: The datasets to remove.
+        :type selected_datasets: list
+        """
 
         for dataset_name in selected_datasets:
 
@@ -91,6 +109,12 @@ class DatasetManager(dict):
                 del self[dataset_name]
 
     def export_datasets(self, *datasets):
+        """Saves the given datasets to a custom dataset directory.
+
+        This differs from exporting a workspace because an exported
+        workspace includes all the datasets, while this exports a
+        subset.
+        """
 
         dir_name = self._DEFAULT_SAVE_DIR
 

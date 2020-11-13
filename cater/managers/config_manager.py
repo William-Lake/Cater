@@ -4,6 +4,7 @@ import pandas as pd
 
 from managers.singleton import Singleton
 
+
 class ConfigManager(metaclass=Singleton):
     """Manages Cater Configuration.
     """
@@ -12,9 +13,9 @@ class ConfigManager(metaclass=Singleton):
         """Constructor
         """
 
-        self._db = dataset.connect('sqlite:///:memory:')
+        self._db = dataset.connect("sqlite:///:memory:")
 
-    def save_data(self,table_name,**kwargs):
+    def save_data(self, table_name, **kwargs):
         """Saves the given data to the given table.
 
         :param table_name: The table to save the data to.
@@ -27,7 +28,7 @@ class ConfigManager(metaclass=Singleton):
 
         self._db.commit()
 
-    def get_data(self,table_name,**kwargs):
+    def get_data(self, table_name, **kwargs):
         """Gathers some data from the given table.
 
         :param table_name: The table to gather the data from.
@@ -40,7 +41,7 @@ class ConfigManager(metaclass=Singleton):
 
         return table.find(**kwargs)
 
-    def delete_data(self,table_name,**kwargs):
+    def delete_data(self, table_name, **kwargs):
         """Deletes some or all of the data from the target table.
 
         :param table_name: The table to delete the data from.
@@ -51,7 +52,7 @@ class ConfigManager(metaclass=Singleton):
 
         table.delete(**kwargs)
 
-    def get_all_data(self,table_name):
+    def get_all_data(self, table_name):
         """Returns all data in the target table.
 
         :param table_name: The table to gather data from.
@@ -62,7 +63,7 @@ class ConfigManager(metaclass=Singleton):
 
         return self._db[table_name].all()
 
-    def export_config(self,export_loc):
+    def export_config(self, export_loc):
         """Exports the current configuration to the target location as .json files.
 
         :param export_loc: The location to export the data to.
@@ -73,11 +74,11 @@ class ConfigManager(metaclass=Singleton):
 
             table = list(self._db[table_name].all())
 
-            with open(export_loc.joinpath(f'{table_name}.json'),'w+') as out_file:
+            with open(export_loc.joinpath(f"{table_name}.json"), "w+") as out_file:
 
-                out_file.write(json.dumps(table,indent=4))
+                out_file.write(json.dumps(table, indent=4))
 
-    def import_config(self,import_loc):
+    def import_config(self, import_loc):
         """Clears the current configuration and imports the configuration in the target location.
 
         :param import_loc: The location of the configuration files.
@@ -86,7 +87,7 @@ class ConfigManager(metaclass=Singleton):
 
         self.clear_config()
 
-        for config_file in import_loc.glob('*.json'):
+        for config_file in import_loc.glob("*.json"):
 
             json_data = json.loads(open(config_file).read())
 
@@ -94,9 +95,9 @@ class ConfigManager(metaclass=Singleton):
 
             for row in json_data:
 
-                del row['id']
+                del row["id"]
 
-                self.save_data(table_name,**row)
+                self.save_data(table_name, **row)
 
     def clear_config(self):
         """Clears out the in-memory configuration database.
@@ -104,4 +105,4 @@ class ConfigManager(metaclass=Singleton):
 
         for table_name in self._db.tables:
 
-            self._db[table_name].drop()       
+            self._db[table_name].drop()

@@ -48,10 +48,7 @@ class Cater:
         self._current_results_df = None
 
     def _generate_report(self):
-        """
-        get the selected datasets
-        ask the user what reports they want to generate
-        if they want to generate a pandas profiling report
+        """Generates dataset reports.
         """
 
         report_data = ReportingDialog(self._dataset_manager).start()
@@ -59,13 +56,15 @@ class Cater:
         self._report_generator.generate_reports(**report_data)
 
     def _execute_query(self):
+        """Executes the query provided by the user against the datasets specified in their query.
+        """
 
         query = self._app_ui[AppUILayout.ML_SQL].Get()
 
         if query:
 
             self._app_ui[AppUILayout.ML_SQL].Update(
-                sqlparse.format(query, reindent=True, keyword_case="lower")
+                sqlparse.format(query, reindent=True)
             )
 
             dfs = {
@@ -74,7 +73,7 @@ class Cater:
                 if df_name in query
             }
 
-            result = sqldf(query, dfs)            
+            result = sqldf(query, dfs)
 
             self._app_ui[AppUILayout.ML_RSLT].Update(
                 tabulate(result, headers="keys", tablefmt="fancy_grid", showindex=False)
@@ -83,6 +82,8 @@ class Cater:
             self._current_results_df = result
 
     def _save_workspace(self):
+        """Saves the current workspace.
+        """
 
         if not self._workspace_manager.is_empty():
 
@@ -95,6 +96,8 @@ class Cater:
                 self._workspace_manager.save_workspace(filepath)
 
     def _load_workspace(self):
+        """Replaces the current workspace with another.
+        """
 
         # TODO In the future workspace files wont be dirs.
         workspace_path = InputManager.get_directory_input(message="Select Workspace")
@@ -124,18 +127,7 @@ class Cater:
             self._load_datasets(*list(workspace_path.glob("*.feather")))
 
     def _add_dataset(self):
-
-        """
-        Gather file paths from user
-        determine file type
-        determine method for loading df
-        if method can be determined
-            load file into df
-            save df to tmp dir
-            add df to local dict
-            add df name to ui listbox
-        else
-            alert the user they can't use that thing as a datasource
+        """Adds a dataset.
         """
 
         file_paths = InputManager.get_filepath_input(
@@ -148,6 +140,8 @@ class Cater:
             self._load_datasets(*file_paths)
 
     def _add_results_as_dataset(self):
+        """Adds the current sql results as a dataset.
+        """
 
         if self._current_results_df is not None:
 
@@ -174,6 +168,8 @@ class Cater:
                 )
 
     def _load_datasets(self, *dataset_paths):
+        """Loads the provided dataset paths to the datasets.
+        """
 
         """
         TODO
@@ -194,6 +190,8 @@ class Cater:
         self._app_ui.update_datasets(self._dataset_manager.keys())
 
     def _remove_dataset(self):
+        """Removes selected datasets.
+        """
 
         selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
 
@@ -217,6 +215,8 @@ class Cater:
                 self._app_ui.update_datasets(self._dataset_manager.keys())
 
     def _export_dataset(self):
+        """Exports selected datasets.
+        """
 
         """
         give user popup with list of options
@@ -243,6 +243,11 @@ class Cater:
                 self._dataset_manager.export_datasets(*selected_datasets)
 
     def _generate_datacompy_report(self):
+        """Generates a Datacompy report.
+
+        :return: The path to the report data directory.
+        :rtype: pathlib.Path
+        """
 
         """
         if number of datasets < 2
@@ -269,6 +274,11 @@ class Cater:
             return self._report_generator.generate_datacompy_report(selected_datasets)
 
     def _generate_pandas_profiling_report(self):
+        """Generates a Pandas-Profiling report.
+
+        :return: The path to the generated report.
+        :rtype: pathlib.Path
+        """
 
         """
         if number of datasets < 1
@@ -298,6 +308,8 @@ class Cater:
                 )
 
     def _create_resources(self):
+        """Creates the Cater resources.
+        """
 
         self._dataset_manager = DatasetManager()
 

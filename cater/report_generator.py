@@ -13,14 +13,14 @@ CSV = "CSV"
 
 class ReportGenerator:
 
-    _DATACOMPY_REPORT = "Datacompy"
-    _PANDAS_PROFILING_REPORT = "Pandas Profiling"
+    _BTN_DATACOMPY_REPORT = "Datacompy"
+    _BTN_PANDAS_PROFILING_REPORT = "Pandas Profiling"
 
     def __init__(self):
 
         self._report_func_dict = {
-            self._DATACOMPY_REPORT: self._generate_datacompy_report,
-            self._PANDAS_PROFILING_REPORT: self._generate_pandas_profiling_report,
+            self._BTN_DATACOMPY_REPORT: self._generate_datacompy_report,
+            self._BTN_PANDAS_PROFILING_REPORT: self._generate_pandas_profiling_report,
         }
 
     def generate_reports(self, **report_data):
@@ -48,11 +48,7 @@ class ReportGenerator:
         join_columns = kwargs["join_columns"]
 
         comparison = Compare(
-            df1,
-            df2,
-            join_columns=join_columns,
-            df1_name=df1_name,
-            df2_name=df2_name,
+            df1, df2, join_columns=join_columns, df1_name=df1_name, df2_name=df2_name,
         )
 
         report_name_data_dict = {

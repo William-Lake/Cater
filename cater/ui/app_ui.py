@@ -5,7 +5,18 @@ from ui.cater_palette import THEME
 
 
 class AppUI(psg.Window):
+    """The primary UI for Cater.
+
+    :param psg: The parent Window class.
+    :type psg: PySimpleGUI.Window
+    """
+
     def __init__(self, cater_callback_dict):
+        """Constructor
+
+        :param cater_callback_dict: The mapping of control keys to cater callbacks.
+        :type cater_callback_dict: dict
+        """
 
         self._set_theme()
 
@@ -18,12 +29,16 @@ class AppUI(psg.Window):
         self._control_action_dict = cater_callback_dict
 
     def _set_theme(self):
+        """Sets the color theme.
+        """
 
-        psg.LOOK_AND_FEEL_TABLE['Cater'] = THEME
+        psg.LOOK_AND_FEEL_TABLE["Cater"] = THEME
 
-        psg.theme('Cater')
+        psg.theme("Cater")
 
     def start(self):
+        """Start the Cater UI event loop.
+        """
 
         while True:
 
@@ -42,6 +57,8 @@ class AppUI(psg.Window):
         self.close()
 
     def _review_control_state(self):
+        """Disables/Enables controls based on current user input.
+        """
 
         # Is there a better way to do this?
         is_empty = (
@@ -70,6 +87,8 @@ class AppUI(psg.Window):
             self[button_key].Update(disabled=is_disabled)
 
     def reset(self):
+        """Clears all user input and resets the controls to their starting state.
+        """
 
         self[AppUILayout.LB_DATASETS].Update([])
 
@@ -78,5 +97,10 @@ class AppUI(psg.Window):
         self[AppUILayout.ML_RSLT].Update()
 
     def update_datasets(self, dataset_names):
+        """Adds the given datasets to the dataset listbox.
+
+        :param dataset_names: The dataset names to add.
+        :type dataset_names: list
+        """
 
         self[AppUILayout.LB_DATASETS].Update(dataset_names)
