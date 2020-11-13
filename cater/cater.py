@@ -9,13 +9,12 @@ from pandasql import sqldf
 
 from ui.app_ui import AppUI
 from ui.layout.app_ui_layout import AppUILayout
-from doers.report_generator import ReportGenerator
-from doers.query_executor import QueryExecutor
 from managers.dataset_manager import DatasetManager
 from managers.workspace_manager import WorkspaceManager
 from managers.input_manager import InputManager
 from ui.reporting_dialog import ReportingDialog
 from managers.config_manager import ConfigManager
+from report_generator import ReportGenerator
 
 
 class Cater:
@@ -317,11 +316,15 @@ class Cater:
 
         self._report_generator = ReportGenerator()
 
-        self._query_executor = QueryExecutor()
-
         ConfigManager().clear_config()
 
     def start(self):
         """Starts the app."""
 
         self._app_ui.start()
+
+        if not self._workspace_manager.is_empty() and InputManager.get_user_confirmation(
+                        prompt="It looks like your workspace isn't empty- would you like to save it before exiting?"
+                    ) == InputManager.YES:
+
+            self._save_workspace()
