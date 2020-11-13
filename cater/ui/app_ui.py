@@ -1,12 +1,13 @@
 import PySimpleGUI as psg
 
 from ui.layout.app_ui_layout import AppUILayout
+from ui.cater_palette import THEME
 
 
 class AppUI(psg.Window):
     def __init__(self, cater_callback_dict):
 
-        psg.ChangeLookAndFeel("Dark")
+        self._set_theme()
 
         psg.SetOptions(
             element_padding=(0, 0), button_element_size=(15, 1), auto_size_buttons=False
@@ -16,13 +17,19 @@ class AppUI(psg.Window):
 
         self._control_action_dict = cater_callback_dict
 
+    def _set_theme(self):
+
+        psg.LOOK_AND_FEEL_TABLE['Cater'] = THEME
+
+        psg.theme('Cater')
+
     def start(self):
 
         while True:
 
             (event, values) = self.read(timeout=100)
 
-            if event == AppUILayout.EXIT or event == psg.WIN_CLOSED:
+            if event == AppUILayout.MNU_EXIT or event == psg.WIN_CLOSED:
 
                 break  # exit button clicked
 
@@ -52,10 +59,10 @@ class AppUI(psg.Window):
         theres_no_results = is_empty(self[AppUILayout.ML_RSLT].Get())
 
         target_button_is_disabled_dict = {
-            AppUILayout.REMOVE_DATASET: theres_no_datasets_selected,
-            AppUILayout.EXPORT_DATASET: theres_no_datasets_selected,
-            AppUILayout.REPORTING: theres_no_datasets,
-            AppUILayout.ADD_RESULTS_TO_DATASETS: theres_no_results,
+            AppUILayout.BTN_REMOVE_DATASET: theres_no_datasets_selected,
+            AppUILayout.BTN_EXPORT_DATASET: theres_no_datasets_selected,
+            AppUILayout.BTN_REPORTING: theres_no_datasets,
+            AppUILayout.BTN_ADD_RESULTS_TO_DATASETS: theres_no_results,
         }
 
         for button_key, is_disabled in target_button_is_disabled_dict.items():

@@ -5,6 +5,7 @@ import pandas as pd
 import PySimpleGUI as psg
 from tabulate import tabulate
 import sqlparse
+from pandasql import sqldf
 
 from ui.app_ui import AppUI
 from ui.layout.app_ui_layout import AppUILayout
@@ -32,14 +33,14 @@ class Cater:
         self._create_resources()
 
         self._callback_dict = {
-            AppUILayout.EXECUTE: self._execute_query,
-            AppUILayout.SAVE_WORKSPACE: self._save_workspace,
-            AppUILayout.LOAD_WORKSPACE: self._load_workspace,
-            AppUILayout.ADD_DATASET: self._add_dataset,
-            AppUILayout.ADD_RESULTS_TO_DATASETS: self._add_results_as_dataset,
-            AppUILayout.REMOVE_DATASET: self._remove_dataset,
-            AppUILayout.EXPORT_DATASET: self._export_dataset,
-            AppUILayout.REPORTING: self._generate_report,
+            AppUILayout.BTN_EXECUTE: self._execute_query,
+            AppUILayout.MNU_SAVE_WORKSPACE: self._save_workspace,
+            AppUILayout.MNU_LOAD_WORKSPACE: self._load_workspace,
+            AppUILayout.BTN_ADD_DATASET: self._add_dataset,
+            AppUILayout.BTN_ADD_RESULTS_TO_DATASETS: self._add_results_as_dataset,
+            AppUILayout.BTN_REMOVE_DATASET: self._remove_dataset,
+            AppUILayout.BTN_EXPORT_DATASET: self._export_dataset,
+            AppUILayout.BTN_REPORTING: self._generate_report,
         }
 
         self._app_ui = AppUI(self._callback_dict)
@@ -47,7 +48,6 @@ class Cater:
         self._current_results_df = None
 
     def _generate_report(self):
-
         """
         get the selected datasets
         ask the user what reports they want to generate
@@ -74,9 +74,7 @@ class Cater:
                 if df_name in query
             }
 
-            result = self._query_executor.execute_query_against_dfs(
-                query=query, dfs=dfs
-            )
+            result = sqldf(query, dfs)            
 
             self._app_ui[AppUILayout.ML_RSLT].Update(
                 tabulate(result, headers="keys", tablefmt="fancy_grid", showindex=False)

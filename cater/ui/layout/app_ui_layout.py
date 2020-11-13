@@ -3,43 +3,27 @@ import PySimpleGUI as psg
 
 class AppUILayout(list):
 
-    EXECUTE = "EXECUTE"
-
+    MNU_SAVE_WORKSPACE = "Save..."
+    MNU_LOAD_WORKSPACE = "Load..."
+    MNU_EXIT = "EXIT"
     LB_DATASETS = "LB_DATASETS"
-
     ML_SQL = "ML_SQL"
     ML_RSLT = "ML_RSLT"
-
     COL = "COL"
-
-    EXIT = "EXIT"
-
-    SAVE_WORKSPACE = "Save..."
-    LOAD_WORKSPACE = "Load..."
-    ADD_DATASET = "Add Dataset(s)"
-    REMOVE_DATASET = "Remove Dataset"
-    EXPORT_DATASET = "Export Dataset(s)"
-    ADD_RESULTS_TO_DATASETS = "Add Results to Datasets"
-
-    REPORTING = "Reporting..."
-    DATACOMPY_REPORT = "Datacompy..."
-    PANDAS_PROFILING_REPORT = "Pandas Profiling..."
+    BTN_EXECUTE = "EXECUTE"
+    BTN_ADD_DATASET = "Add Dataset(s)"
+    BTN_REMOVE_DATASET = "Remove Dataset"
+    BTN_EXPORT_DATASET = "Export Dataset(s)"
+    BTN_ADD_RESULTS_TO_DATASETS = "Add Results to Datasets"
+    BTN_REPORTING = "Reporting..."
+    STATUS_BAR = 'STATUS_BAR'
 
     def __init__(self):
 
-        """
-        column
-            sql frame
-            dataset frame
-        column
-            results
-        """
-
         menu = psg.MenuBar(
-            background_color="#CCCCCC",
             menu_definition=[
-                ["File", [self.EXIT]],
-                ["Workspace", [self.SAVE_WORKSPACE, self.LOAD_WORKSPACE]],
+                ["File", [self.MNU_EXIT]],
+                ["Workspace", [self.MNU_SAVE_WORKSPACE, self.MNU_LOAD_WORKSPACE]],
             ],
         )
 
@@ -48,14 +32,11 @@ class AppUILayout(list):
         sql_entry = psg.Multiline(
             key=self.ML_SQL,
             size=(54, 10),
-            background_color="#E0FBFC",
-            text_color="#4A6C96",
             enable_events=True,
         )
 
         sql_submit = psg.Button(
-            "EXECUTE",
-            button_color=("#404040", "#8AC926"),
+            self.BTN_EXECUTE,
         )
 
         query_frame = psg.Frame(
@@ -70,37 +51,32 @@ class AppUILayout(list):
             [],
             key=self.LB_DATASETS,
             size=(35, 10),
-            background_color="#FCC7EB",
-            text_color="#96433B",
             select_mode=psg.LISTBOX_SELECT_MODE_EXTENDED,
         )
 
         dataset_buttons = [
-            [psg.Button(self.ADD_DATASET, button_color=("#404040", "#E0FBFC"))],
+            [psg.Button(self.BTN_ADD_DATASET)],
             [
                 psg.Button(
-                    self.ADD_RESULTS_TO_DATASETS,
-                    button_color=("#404040", "#FF8552"),
+                    self.BTN_ADD_RESULTS_TO_DATASETS,
                     disabled=True,
                 )
             ],
             [
                 psg.Button(
-                    self.REMOVE_DATASET,
-                    button_color=("#E0FBFC", "#1982C4"),
+                    self.BTN_REMOVE_DATASET,
                     disabled=True,
                 )
             ],
             [
                 psg.Button(
-                    self.EXPORT_DATASET,
-                    button_color=("#404040", "#FFCA3A"),
+                    self.BTN_EXPORT_DATASET,
                     disabled=True,
                 )
             ],
             [
                 psg.Button(
-                    self.REPORTING, button_color=("#E0FBFC", "#BD8B9C"), disabled=True
+                    self.BTN_REPORTING, disabled=True
                 )
             ],
         ]
@@ -121,8 +97,6 @@ class AppUILayout(list):
             layout=[
                 [
                     psg.Multiline(
-                        background_color="#FCF5C7",
-                        text_color="#7168B0",
                         font=["Courier New", 10],
                         key=self.ML_RSLT,
                         auto_refresh=True,
@@ -141,8 +115,10 @@ class AppUILayout(list):
             key=self.COL,
         )
 
+        # TODO Updating StatusBar
         status_bar = psg.StatusBar(
-            "Load a Workspace, or add a Dataset to begin.", text_color="#FFCA3A"
+            "Load a Workspace, or add a Dataset to begin.",
+            key = self.STATUS_BAR
         )
 
         self.append([left_column, right_column])

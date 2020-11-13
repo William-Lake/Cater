@@ -3,6 +3,7 @@ from pathlib import Path
 import PySimpleGUI as psg
 
 from ui.selections_dialog import SelectionsDialog
+from ui.cater_palette import BUTTON,BACKGROUND,TEXT
 
 
 class InputManager:
@@ -17,7 +18,7 @@ class InputManager:
 
             kwargs["no_window"] = True
 
-        selected_paths = psg.PopupGetFile(**kwargs)
+        selected_paths = psg.PopupGetFile(button_color=BUTTON,background_color=BACKGROUND,text_color=TEXT,**kwargs)
 
         # If selection(s) made,
         if selected_paths:
@@ -37,9 +38,7 @@ class InputManager:
 
             kwargs["no_window"] = True
 
-        selected_directory = psg.PopupGetFolder(**kwargs)
-
-        print(selected_directory)
+        selected_directory = psg.PopupGetFolder(button_color=BUTTON,background_color=BACKGROUND,text_color=TEXT,**kwargs)
 
         if selected_directory:
 
@@ -50,7 +49,7 @@ class InputManager:
     @staticmethod
     def get_user_confirmation(prompt):
 
-        return psg.PopupYesNo(prompt, button_color=("#E0FBFC", "#1982C4"))
+        return psg.PopupYesNo(prompt,button_color=BUTTON,background_color=BACKGROUND,text_color=TEXT)
 
     @staticmethod
     def get_user_selections(*choices, limit=1):
@@ -60,4 +59,4 @@ class InputManager:
     @staticmethod
     def get_user_text_input(prompt):
 
-        return psg.PopupGetText(prompt, button_color=("#E0FBFC", "#DE1A1A"))
+        return psg.PopupGetText(prompt,button_color=BUTTON,background_color=BACKGROUND,text_color=TEXT)

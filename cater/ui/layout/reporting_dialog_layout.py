@@ -30,18 +30,16 @@ class ReportingDialogLayout(list):
             list(datasets.keys()),
             key=self.LB_DATASETS,
             size=(35, 10),
-            background_color="#FCC7EB",
-            text_color="#96433B",
             select_mode=psg.LISTBOX_SELECT_MODE_EXTENDED,
         )
 
         dataset_buttons = [
             [
                 psg.Button(
-                    self.PANDAS_PROFILING_REPORT, button_color=("#404040", "#E0FBFC")
+                    self.PANDAS_PROFILING_REPORT
                 )
             ],
-            [psg.Button(self.DATACOMPY_REPORT, button_color=("#404040", "#E0FBFC"))],
+            [psg.Button(self.DATACOMPY_REPORT)],
         ]
 
         dataset_buttons_column = psg.vtop(psg.Column(layout=dataset_buttons))
@@ -56,8 +54,6 @@ class ReportingDialogLayout(list):
             [],
             key=self.LB_PLANNED_REPORTS,
             size=(35, 10),
-            background_color="#FCC7EB",
-            text_color="#96433B",
             select_mode=psg.LISTBOX_SELECT_MODE_EXTENDED,
         )
 
