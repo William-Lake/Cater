@@ -5,13 +5,15 @@ class SelectionsDialogLayout(list):
     """The Selections Dialog layout.
     """
 
+    OK = 'OK'
+    BTN_CANCEL = 'CANCEL'
+
     def __init__(self, *choices):
         """Constructor
         """
 
-        self._checkboxes = {choice: psg.Checkbox(choice) for choice in self._choices}
+        self.checkboxes = {choice: psg.Checkbox(choice) for choice in choices}
 
-        return [
-            list(self._checkboxes.values()),
-            [psg.Button(self.OK), psg.Button(self.BTN_CANCEL)],
-        ]
+        self.append(list(self.checkboxes.values()))
+
+        self.append([psg.Button(self.OK), psg.Button(self.BTN_CANCEL)])

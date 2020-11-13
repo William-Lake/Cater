@@ -19,8 +19,10 @@ class SelectionsDialog(psg.Window):
 
         self._choices = choices
 
+        self._layout = SelectionsDialogLayout(*choices)
+
         super().__init__(
-            "Choose at least one option...", SelectionsDialogLayout(*choices)
+            "Choose at least one option...", self._layout
         )
 
     def start(self, limit=1):
@@ -46,7 +48,7 @@ class SelectionsDialog(psg.Window):
 
                 selections = [
                     selection
-                    for selection, chk in self._checkboxes.items()
+                    for selection, chk in self._layout.checkboxes.items()
                     if chk.Get()
                 ]
 
