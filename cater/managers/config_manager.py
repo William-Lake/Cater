@@ -1,4 +1,5 @@
 import dataset
+import json
 import pandas as pd
 
 from managers.singleton import Singleton
@@ -9,41 +10,62 @@ class ConfigManager(metaclass=Singleton):
 
         self._db = dataset.connect('sqlite:///:memory:')
 
-    def save_info(self,table_name,**kwargs):
+    def __del__(self):
+
+        del self._db
+
+    def save_data(self,table_name,**kwargs):
 
         table = self._db[table_name]
 
         table.insert(kwargs)
 
-    def get_info(self,table_name):
+        self._db.commit()
 
-        # TODO
-        return list(self._db[table_name].all())
+    def get_data(self,table_name,**kwargs):
 
-    def save(self,save_loc):
+        table = self._db[table_name]
 
-        for table in self._db.tables:
+        return table.find(**kwargs)
 
-            table = self._db[table]
+    def delete_data(self,table_name,**kwargs):
 
-            df_data = {column:[] for column in table.columns}
+        table = self._db[table_name]
 
-            for record in table:
+        table.delete(**kwargs)
 
-                for column in table.columns:
+    def get_all_data(self,table_name):
 
-                    df_data[column].append(record[column])
+        return self._db[table_name].all()
 
-            pd.DataFrame(df_data).to_feather(save_loc.joinpath(f'{table}.config'))
+    def export_config(self,export_loc):
 
-    def load(self,load_loc):
+        for table_name in self._db.tables:
 
-        for config_df in load_loc.glob('*.config'):
+            table = list(self._db[table_name].all())
 
-            df = pd.read_feather(config_df)
+            with open(export_loc.joinpath(f'{table_name}.json'),'w+') as out_file:
 
-            table_name = config_df.stem
+                out_file.write(json.dumps(table,indent=4))
 
-            for idx,row in df.iterrows():
+    def import_config(self,import_loc):
 
-                self.save_info(table_name,**row.to_dict())
+        self.clear_config()
+
+        for config_file in import_loc.glob('*.json'):
+
+            json_data = json.loads(open(config_file).read())
+
+            table_name = config_file.stem
+
+            for row in json_data:
+
+                del row['id']
+
+                self.save_data(table_name,**row)
+
+    def clear_config(self):
+
+        for table_name in self._db.tables:
+
+            self._db[table_name].delete()        

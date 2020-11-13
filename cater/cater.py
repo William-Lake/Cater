@@ -14,6 +14,7 @@ from managers.dataset_manager import DatasetManager
 from managers.workspace_manager import WorkspaceManager
 from managers.input_manager import InputManager
 from ui.reporting_dialog import ReportingDialog
+from managers.config_manager import ConfigManager
 
 
 class Cater:
@@ -285,8 +286,6 @@ class Cater:
             self._dataset_manager.keys()
         )
 
-        print(selected_dataset)
-
         if selected_dataset:
 
             save_path = InputManager.get_filepath_input(
@@ -309,6 +308,8 @@ class Cater:
         self._report_generator = ReportGenerator()
 
         self._query_executor = QueryExecutor()
+
+        ConfigManager().clear_config()
 
     def start(self):
         """Starts the app."""
