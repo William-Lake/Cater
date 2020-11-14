@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 import PySimpleGUI as psg
 
 from ui.layout.app_ui_layout import AppUILayout
@@ -52,7 +55,15 @@ class AppUI(psg.Window):
 
             elif event in self._control_action_dict.keys():
 
-                self._control_action_dict[event]()
+                try:
+
+                    self._control_action_dict[event]()
+
+                except Exception as e:
+
+                    etype,value,tb = sys.exc_info()
+
+                    psg.PopupError('There was an unexpected exception:','\n'.join(traceback.format_exception_only(etype,value)))
 
             self._review_control_state()
 
@@ -77,11 +88,14 @@ class AppUI(psg.Window):
 
         theres_no_results = is_empty(self[AppUILayout.ML_RSLT].Get())
 
+        theres_no_query = is_empty(self[AppUILayout.ML_SQL].Get())
+
         target_button_is_disabled_dict = {
             AppUILayout.BTN_REMOVE_DATASET: theres_no_datasets_selected,
             AppUILayout.BTN_EXPORT_DATASET: theres_no_datasets_selected,
             AppUILayout.BTN_REPORTING: theres_no_datasets,
             AppUILayout.BTN_ADD_RESULTS_TO_DATASETS: theres_no_results,
+            AppUILayout.BTN_EXECUTE:theres_no_datasets or theres_no_query
         }
 
         for button_key, is_disabled in target_button_is_disabled_dict.items():

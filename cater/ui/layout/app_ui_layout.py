@@ -93,7 +93,7 @@ class AppUILayout(list):
 
         sql_entry = psg.Multiline(key=self.ML_SQL, size=(54, 10), enable_events=True,)
 
-        sql_submit = psg.Button(self.BTN_EXECUTE,)
+        sql_submit = psg.Button(self.BTN_EXECUTE,disabled=True)
 
         query_frame = psg.Frame("SQL Query", layout=[[sql_entry], [sql_submit],],)
 
