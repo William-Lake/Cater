@@ -114,17 +114,14 @@ class DatasetManager(dict):
 
         for dataset_name in selected_datasets:
 
-            # TODO cater.py should be checking this. Is this even possible?
-            if dataset_name in self.keys():
+            dataset_path = self[dataset_name]
 
-                dataset_path = self[dataset_name]
+            # Not sure how the dataset would go missing
+            # (barring the user manually deleting it,)
+            # but airing on the side of caution.
+            dataset_path.unlink(missing_ok=True)
 
-                # Not sure how the dataset would go missing
-                # (barring the user manually deleting it,)
-                # but airing on the side of caution.
-                dataset_path.unlink(missing_ok=True)
-
-                del self[dataset_name]
+            del self[dataset_name]
 
     def export_datasets(self, *datasets):
         """Saves the given datasets to a custom dataset directory.
