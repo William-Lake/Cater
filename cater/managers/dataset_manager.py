@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 from pathlib import Path
 import shutil
+import traceback
 
 import pandas as pd
 
@@ -47,7 +48,16 @@ class DatasetManager(dict):
                 # TODO try/except
                 # TODO Address different params each read method allows.
 
-                df = read_func(dataset_path.as_posix())
+                try:
+
+                    df = read_func(dataset_path.as_posix())
+
+                except Exception as e:
+
+                    # TODO The user should be made aware of this.
+                    traceback.print_exc()
+
+                    continue
 
                 # workspace_path is tempfile.Temporary_Directory which is why we have to turn it into a Path object before using .joinpath.
                 # E.g. /path/data.csv --> /workspace/data.feather
