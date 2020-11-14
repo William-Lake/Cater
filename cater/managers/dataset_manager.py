@@ -33,13 +33,15 @@ class DatasetManager(dict):
             ".pickle": pd.read_pickle,
         }
 
-    def load_datasets(self, workspace_path, *dataset_paths):
+    def load_datasets(self, update_status_callback,workspace_path, *dataset_paths):
         """Loads the given datasets from the target workspace.
         """
 
         for dataset_path in dataset_paths:
 
             dataset_name = self._determine_dataset_name(dataset_path)
+
+            update_status_callback(f'Importing dataset with name {dataset_name} from {dataset_path.as_posix()}')
 
             # If the dataset is already in the workspace, no need to load it.
             if dataset_path.parent != workspace_path:
@@ -55,7 +57,8 @@ class DatasetManager(dict):
 
                 except Exception as e:
 
-                    # TODO The user should be made aware of this.
+                    update_status_callback(f'Exception while importing dataset from {dataset_path.as_posix()}! {str(e)}')
+
                     traceback.print_exc()
 
                     continue
@@ -79,7 +82,7 @@ class DatasetManager(dict):
         :rtype: str
         """
 
-        dataset_name = dataset_path.stem.upper()
+        dataset_name = dataset_path.stem
 
         # If there's already a dataset saved with the target name,
         # we'll want to add a suffix to it so we can tell them apart
@@ -104,7 +107,7 @@ class DatasetManager(dict):
             in dataset_paths
         }
 
-    def remove_datasets(self, selected_datasets):
+    def remove_datasets(self, update_status_callback, selected_datasets):
         """Removes the given datasets from the manager.
 
         :param selected_datasets: The datasets to remove.
@@ -115,6 +118,8 @@ class DatasetManager(dict):
 
             dataset_path = self[dataset_name]
 
+            update_status_callback(f'Removing dataset {dataset_name} from workspace...')
+
             # Not sure how the dataset would go missing
             # (barring the user manually deleting it,)
             # but airing on the side of caution.
@@ -122,7 +127,7 @@ class DatasetManager(dict):
 
             del self[dataset_name]
 
-    def export_datasets(self, *datasets):
+    def export_datasets(self, update_status_callback, *datasets):
         """Saves the given datasets to a custom dataset directory.
 
         This differs from exporting a workspace because an exported
@@ -140,6 +145,8 @@ class DatasetManager(dict):
 
         save_dir = Path(dir_name)
 
+        update_status_callback(f'Exporting datasets to {save_dir.as_posix()}')
+
         save_dir.mkdir()
 
         for dataset_name in datasets:
@@ -152,11 +159,15 @@ class DatasetManager(dict):
 
             dataset_save_path = save_dir.joinpath(dataset_path.with_suffix(".csv").name)
 
+            update_status_callback(f'Exporting {dataset_name} to {dataset_save_path.as_posix()}')
+
             try:
 
                 pd.read_feather(dataset_path).to_csv(dataset_save_path, index=False)
 
             except ArrowIOError as e:
+
+                update_status_callback(f'Exception while exporting {dataset_name}! {str(e)}')
 
                 # TODO log this.
                 traceback.print_exc()

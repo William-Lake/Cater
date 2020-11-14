@@ -45,26 +45,44 @@ class Cater:
 
         self._app_ui = AppUI(self._callback_dict)
 
+        self._update_status_callback = None
+
         self._current_results_df = None
+
+    def _update_status(self,message):
+
+        if self._update_status_callback is None:
+
+            self._update_status_callback = self._app_ui[AppUILayout.STATUS_BAR].Update
+
+        self._update_status_callback(message)
 
     def _generate_report(self):
         """Generates dataset reports.
         """
 
+        self._update_status('Generating reports...')
+
         report_data = ReportingDialog(self._dataset_manager).start()
 
-        self._report_generator.generate_reports(**report_data)
+        self._report_generator.generate_reports(self._update_status,**report_data)
+
+        self._update_status('Done')
 
     def _execute_query(self):
         """Executes the query provided by the user against the datasets specified in their query.
         """
 
+        self._update_status('Executing Query...')
+
         query = self._app_ui[AppUILayout.ML_SQL].Get()
 
         if query:
 
+            query = sqlparse.format(query, reindent=True, keyword_case='upper')
+
             self._app_ui[AppUILayout.ML_SQL].Update(
-                sqlparse.format(query, reindent=True)
+                query
             )
 
             dfs = {
@@ -81,9 +99,17 @@ class Cater:
 
             self._current_results_df = result
 
+            self._update_status('Done')
+
+        else:
+
+            self._update_status('No query to execute!')
+
     def _save_workspace(self):
         """Saves the current workspace.
         """
+
+        self._update_status('Saving Workspace...')
 
         if not self._workspace_manager.is_empty():
 
@@ -95,9 +121,21 @@ class Cater:
 
                 self._workspace_manager.save_workspace(filepath)
 
+                self._update_status('Workspace Saved.')
+
+            else:
+
+                self._update_status('No filepath provided to save workspace to!')
+
+        else:
+
+            self._update_status('No files in workspace to save!')
+
     def _load_workspace(self):
         """Replaces the current workspace with another.
         """
+
+        self._update_status('Loading Workspace...')
 
         workspace_path = InputManager.get_filepath_input(message="Select Workspace",file_types=(('Cater Workspaces','*.cater'),))
 
@@ -125,9 +163,17 @@ class Cater:
             # while cater was running, but how likely is that?
             self._load_datasets(*list(self._workspace_manager.get_workspace_path().glob("*.feather")))
 
+            self._update_status('Done')
+
+        else:
+
+            self._update_status('No workspace path provided to load from!')
+
     def _add_dataset(self):
         """Adds a dataset.
         """
+
+        self._update_status('Adding dataset...')
 
         file_paths = InputManager.get_filepath_input(
             message="Select dataset(s)", multiple_files=True
@@ -138,21 +184,35 @@ class Cater:
 
             self._load_datasets(*file_paths)
 
+            self._update_status('Done')
+
+        else:
+
+            self._update_status('No dataset paths provided to add to workspace!')
+
     def _add_results_as_dataset(self):
         """Adds the current sql results as a dataset.
         """
+
+        self._update_status('Adding results as dataset...')
 
         if self._current_results_df is not None:
 
             dataset_name = InputManager.get_user_text_input("Dataset Name?")
 
-            while dataset_name in self._dataset_manager.keys():
-
-                dataset_name = InputManager.get_user_text_input(
-                    "That dataset name is already being used. Please use another."
-                )
-
             if dataset_name is not None:
+
+                while dataset_name in self._dataset_manager.keys():
+
+                    dataset_name = InputManager.get_user_text_input(
+                        "That dataset name is already being used. Please try another."
+                    )
+
+                    if dataset_name is None:
+
+                        self._update_status('Cancelled')
+
+                        return               
 
                 dataset_path = self._workspace_manager.get_workspace_path().joinpath(f"{dataset_name}.feather")
 
@@ -164,11 +224,25 @@ class Cater:
                     self._dataset_manager.keys()
                 )
 
+                self._update_status('Done')
+
+            else:
+
+                self._update_status('No dataset name provided, dataset not added!')
+
+        else:
+
+            self._update_status('No query results to add to datasets!')
+
     def _load_datasets(self, *dataset_paths):
         """Loads the provided dataset paths to the datasets.
         """
 
+        self._update_status('Loading Datasets...')
+
         # This all seems very messy.
+
+        self._update_status('Validating dataset paths...')
 
         dataset_validation = self._dataset_manager.validate_dataset_paths(*dataset_paths)
 
@@ -176,7 +250,11 @@ class Cater:
 
             datasets_to_load = dataset_paths
 
+            self._update_status('Dataset paths valid.')
+
         elif any(dataset_validation.values()):
+
+            self._update_status('Some dataset paths invalid!')
 
             if InputManager.get_user_confirmation('It looks like some of the datasets aren\'t valid formats. Would you like to continue with just the valid ones?') == InputManager.YES:
 
@@ -193,19 +271,25 @@ class Cater:
 
         else:
 
+            self._update_status('All dataset paths invalid!')
+
             datasets_to_load = None
 
         if datasets_to_load is not None:
 
             self._dataset_manager.load_datasets(
-                self._workspace_manager.get_workspace_path(), *datasets_to_load
+                self._update_status,self._workspace_manager.get_workspace_path(), *datasets_to_load
             )
 
             self._app_ui.update_datasets(self._dataset_manager.keys())
 
+            self._update_status('Done')
+
     def _remove_dataset(self):
         """Removes selected datasets.
         """
+
+        self._update_status('Removing Datasets...')
 
         selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
 
@@ -224,9 +308,17 @@ class Cater:
                 == InputManager.YES
             ):
 
-                self._dataset_manager.remove_datasets(selected_datasets)
+                self._dataset_manager.remove_datasets(self._update_status,selected_datasets)
 
                 self._app_ui.update_datasets(self._dataset_manager.keys())
+
+            else:
+
+                self._update_status('Cancelled')
+
+        else:
+
+            self._update_status('No datasets selected for removal!')
 
     def _export_dataset(self):
         """Exports selected datasets.
@@ -238,6 +330,8 @@ class Cater:
         get save path from user
         save dataset
         """
+        self._update_status('Exporting dataset(s)...')
+
         selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
 
         if selection_indexes:
@@ -254,72 +348,11 @@ class Cater:
 
             else:
 
-                self._dataset_manager.export_datasets(*selected_datasets)
+                self._dataset_manager.export_datasets(self._update_status,*selected_datasets)
 
-    def _generate_datacompy_report(self):
-        """Generates a Datacompy report.
+        else:
 
-        :return: The path to the report data directory.
-        :rtype: pathlib.Path
-        """
-
-        """
-        if number of datasets < 2
-            tell the user this isn't possible
-        else
-            use popup to get a selection of 2 datasets from user
-            generate the datacompy report
-            return the dir the report is located in
-        """
-
-        selected_datasets = InputManager.get_user_selections(
-            self._dataset_manager.keys(), limit=2
-        )
-
-        if selected_datasets:
-
-            selected_datasets = dict(
-                filter(
-                    lambda dataset_entry: dataset_entry[0] in selected_datasets,
-                    self._dataset_manager.items(),
-                )
-            )
-
-            return self._report_generator.generate_datacompy_report(selected_datasets)
-
-    def _generate_pandas_profiling_report(self):
-        """Generates a Pandas-Profiling report.
-
-        :return: The path to the generated report.
-        :rtype: pathlib.Path
-        """
-
-        """
-        if number of datasets < 1
-            tell the user this isn't possible
-        else
-            use popup to get a selection of 2 datasets from user
-            gather the file save path from the user
-            generate the pandas profiling report
-            return the name of the report
-        """
-
-        selected_dataset = InputManager.get_user_selections(
-            self._dataset_manager.keys()
-        )
-
-        if selected_dataset:
-
-            save_path = InputManager.get_filepath_input(
-                message="Save Pandas Profiling Report as...", save_as=True
-            )
-
-            # TODO Should the user be alerted that their report wont be generated if they dont provide a save path?
-            if save_path:
-
-                return self._report_generator.generate_pandas_profiling_report(
-                    save_path, self._dataset_manager.get_datesets(selected_dataset)
-                )
+            self._update_status('No datasets selected for export!')
 
     def _create_resources(self):
         """Creates the Cater resources.
