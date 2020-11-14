@@ -60,9 +60,7 @@ class DatasetManager(dict):
 
                     continue
 
-                # workspace_path is tempfile.Temporary_Directory which is why we have to turn it into a Path object before using .joinpath.
-                # E.g. /path/data.csv --> /workspace/data.feather
-                new_file_path = Path(workspace_path.name).joinpath(
+                new_file_path = Path(workspace_path).joinpath(
                     dataset_path.with_suffix(".feather").name
                 )
 

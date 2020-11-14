@@ -1,6 +1,7 @@
 import os
 import shutil
 from pathlib import Path
+from zipfile import ZipFile
 
 from tempfile import TemporaryDirectory
 
@@ -16,13 +17,19 @@ class WorkspaceManager:
         self._tmp_dir = TemporaryDirectory()
 
     def save_workspace(self, save_location):
-        """Saves the current workspace to the given location.
+        """Saves the current workspace to the given location as an archive.
 
         :param save_location: The location to save the workspace to.
         :type save_location: pathlib.Path
         """
 
-        shutil.copytree(self._tmp_dir, save_location)
+        zip_path = save_location.with_suffix('.cater')
+
+        with ZipFile(zip_path,'w') as out_zip:
+
+            for file_path in self.get_workspace_path().iterdir(): 
+
+                out_zip.write(file_path,arcname=file_path.name)
 
     def is_empty(self):
         """Determines whether the current workspace is empty.
@@ -51,11 +58,11 @@ class WorkspaceManager:
         # Replacing the previous workspace with a new one.
         self._tmp_dir = TemporaryDirectory()
 
-        # TODO In the future the workspace should be a .cater file
-        # so change the extension to .zip, unzip, remove the .zip file,
-        # then load.
+        with ZipFile(workspace_path,'r') as in_zip:
 
-        shutil.copytree(workspace_path, self._tmp_dir.name, dirs_exist_ok=True)
+            in_zip.extractall(path=Path(self._tmp_dir.name))
+
+        print(list(Path(self._tmp_dir.name).glob('*')))
 
     def get_workspace_path(self):
         """Returns the current workspace path.
@@ -64,15 +71,5 @@ class WorkspaceManager:
         :rtype: pathlib.Path
         """
 
-        return self._tmp_dir
+        return Path(self._tmp_dir.name)
 
-    def save_workspace(self, workspace_path):
-        """Exports the current workspace.
-
-        :param workspace_path: The path the workspace should be exported to.
-        :type workspace_path: pathlib.Path
-        """
-
-        # TODO .zip this up after copying, then change the extension to .cater
-
-        shutil.copytree(self._tmp_dir.name, workspace_path)

@@ -38,6 +38,11 @@ class InputManager:
                     Path(selected_path) for selected_path in selected_paths
                 ]
 
+            else:
+
+                # If it's not a tuple it's a string.
+                selected_paths = Path(selected_paths)
+
         return selected_paths
 
     @staticmethod

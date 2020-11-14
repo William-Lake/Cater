@@ -98,8 +98,7 @@ class Cater:
         """Replaces the current workspace with another.
         """
 
-        # TODO In the future workspace files wont be dirs.
-        workspace_path = InputManager.get_directory_input(message="Select Workspace")
+        workspace_path = InputManager.get_filepath_input(message="Select Workspace",file_types=(('Cater Workspaces','*.cater'),))
 
         if workspace_path:
 
@@ -123,7 +122,7 @@ class Cater:
             # Is there any reason to believe rglob would be necessary here?
             # I would only think it was if the user manually went in and changed the workspace
             # while cater was running, but how likely is that?
-            self._load_datasets(*list(workspace_path.glob("*.feather")))
+            self._load_datasets(*list(self._workspace_manager.get_workspace_path().glob("*.feather")))
 
     def _add_dataset(self):
         """Adds a dataset.
@@ -154,9 +153,7 @@ class Cater:
 
             if dataset_name is not None:
 
-                dataset_path = Path(
-                    self._workspace_manager.get_workspace_path().name
-                ).joinpath(f"{dataset_name}.feather")
+                dataset_path = self._workspace_manager.get_workspace_path().joinpath(f"{dataset_name}.feather")
 
                 self._current_results_df.to_feather(dataset_path)
 
