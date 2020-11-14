@@ -5,6 +5,7 @@ import shutil
 import traceback
 
 import pandas as pd
+from pyarrow.lib import ArrowIOError
 
 
 class DatasetManager(dict):
@@ -143,9 +144,6 @@ class DatasetManager(dict):
 
         save_dir.mkdir()
 
-        # TODO cater.py should probably ensure all these still exist
-        # before trying to interact with them,
-        # just to be safe.
         for dataset_name in datasets:
 
             dataset_path = self[dataset_name]
@@ -156,4 +154,12 @@ class DatasetManager(dict):
 
             dataset_save_path = save_dir.joinpath(dataset_path.with_suffix(".csv").name)
 
-            pd.read_feather(dataset_path).to_csv(dataset_save_path, index=False)
+            try:
+
+                pd.read_feather(dataset_path).to_csv(dataset_save_path, index=False)
+
+            except ArrowIOError as e:
+
+                # TODO log this.
+                traceback.print_exc()
+
