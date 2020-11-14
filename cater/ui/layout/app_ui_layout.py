@@ -20,7 +20,7 @@ class AppUILayout(list):
     BTN_REPORTING = "Reporting..."
     STATUS_BAR = "STATUS_BAR"
 
-    F5_KEY = 'F5:71'
+    F5_KEY = "F5:71"
 
     def __init__(self):
         """Constructor

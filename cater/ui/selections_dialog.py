@@ -21,9 +21,7 @@ class SelectionsDialog(psg.Window):
 
         self._layout = SelectionsDialogLayout(*choices)
 
-        super().__init__(
-            "Choose at least one option...", self._layout
-        )
+        super().__init__("Choose at least one option...", self._layout)
 
     def start(self, limit=1):
         """Starts the UI event loop.

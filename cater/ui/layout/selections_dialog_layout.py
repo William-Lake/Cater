@@ -5,8 +5,8 @@ class SelectionsDialogLayout(list):
     """The Selections Dialog layout.
     """
 
-    OK = 'OK'
-    BTN_CANCEL = 'CANCEL'
+    OK = "OK"
+    BTN_CANCEL = "CANCEL"
 
     def __init__(self, *choices):
         """Constructor

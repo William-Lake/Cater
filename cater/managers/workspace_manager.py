@@ -23,13 +23,13 @@ class WorkspaceManager:
         :type save_location: pathlib.Path
         """
 
-        zip_path = save_location.with_suffix('.cater')
+        zip_path = save_location.with_suffix(".cater")
 
-        with ZipFile(zip_path,'w') as out_zip:
+        with ZipFile(zip_path, "w") as out_zip:
 
-            for file_path in self.get_workspace_path().iterdir(): 
+            for file_path in self.get_workspace_path().iterdir():
 
-                out_zip.write(file_path,arcname=file_path.name)
+                out_zip.write(file_path, arcname=file_path.name)
 
     def is_empty(self):
         """Determines whether the current workspace is empty.
@@ -58,11 +58,11 @@ class WorkspaceManager:
         # Replacing the previous workspace with a new one.
         self._tmp_dir = TemporaryDirectory()
 
-        with ZipFile(workspace_path,'r') as in_zip:
+        with ZipFile(workspace_path, "r") as in_zip:
 
             in_zip.extractall(path=Path(self._tmp_dir.name))
 
-        print(list(Path(self._tmp_dir.name).glob('*')))
+        print(list(Path(self._tmp_dir.name).glob("*")))
 
     def get_workspace_path(self):
         """Returns the current workspace path.
@@ -72,4 +72,3 @@ class WorkspaceManager:
         """
 
         return Path(self._tmp_dir.name)
-

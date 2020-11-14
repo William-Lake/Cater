@@ -33,7 +33,7 @@ class DatasetManager(dict):
             ".pickle": pd.read_pickle,
         }
 
-    def load_datasets(self, update_status_callback,workspace_path, *dataset_paths):
+    def load_datasets(self, update_status_callback, workspace_path, *dataset_paths):
         """Loads the given datasets from the target workspace.
         """
 
@@ -41,7 +41,9 @@ class DatasetManager(dict):
 
             dataset_name = self._determine_dataset_name(dataset_path)
 
-            update_status_callback(f'Importing dataset with name {dataset_name} from {dataset_path.as_posix()}')
+            update_status_callback(
+                f"Importing dataset with name {dataset_name} from {dataset_path.as_posix()}"
+            )
 
             # If the dataset is already in the workspace, no need to load it.
             if dataset_path.parent != workspace_path:
@@ -57,7 +59,9 @@ class DatasetManager(dict):
 
                 except Exception as e:
 
-                    update_status_callback(f'Exception while importing dataset from {dataset_path.as_posix()}! {str(e)}')
+                    update_status_callback(
+                        f"Exception while importing dataset from {dataset_path.as_posix()}! {str(e)}"
+                    )
 
                     traceback.print_exc()
 
@@ -99,12 +103,11 @@ class DatasetManager(dict):
 
         return dataset_name
 
-    def validate_dataset_paths(self,*dataset_paths):
+    def validate_dataset_paths(self, *dataset_paths):
 
         return {
-            dataset_path:dataset_path.suffix in self._file_ext_read_funcs.keys()
-            for dataset_path
-            in dataset_paths
+            dataset_path: dataset_path.suffix in self._file_ext_read_funcs.keys()
+            for dataset_path in dataset_paths
         }
 
     def remove_datasets(self, update_status_callback, selected_datasets):
@@ -118,7 +121,7 @@ class DatasetManager(dict):
 
             dataset_path = self[dataset_name]
 
-            update_status_callback(f'Removing dataset {dataset_name} from workspace...')
+            update_status_callback(f"Removing dataset {dataset_name} from workspace...")
 
             # Not sure how the dataset would go missing
             # (barring the user manually deleting it,)
@@ -145,7 +148,7 @@ class DatasetManager(dict):
 
         save_dir = Path(dir_name)
 
-        update_status_callback(f'Exporting datasets to {save_dir.as_posix()}')
+        update_status_callback(f"Exporting datasets to {save_dir.as_posix()}")
 
         save_dir.mkdir()
 
@@ -159,7 +162,9 @@ class DatasetManager(dict):
 
             dataset_save_path = save_dir.joinpath(dataset_path.with_suffix(".csv").name)
 
-            update_status_callback(f'Exporting {dataset_name} to {dataset_save_path.as_posix()}')
+            update_status_callback(
+                f"Exporting {dataset_name} to {dataset_save_path.as_posix()}"
+            )
 
             try:
 
@@ -167,8 +172,9 @@ class DatasetManager(dict):
 
             except ArrowIOError as e:
 
-                update_status_callback(f'Exception while exporting {dataset_name}! {str(e)}')
+                update_status_callback(
+                    f"Exception while exporting {dataset_name}! {str(e)}"
+                )
 
                 # TODO log this.
                 traceback.print_exc()
-

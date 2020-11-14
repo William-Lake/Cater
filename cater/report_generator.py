@@ -23,7 +23,7 @@ class ReportGenerator:
             self._BTN_PANDAS_PROFILING_REPORT: self._generate_pandas_profiling_report,
         }
 
-    def generate_reports(self, update_callback,**report_data):
+    def generate_reports(self, update_callback, **report_data):
 
         timestamp = str(datetime.now().timestamp())
 
@@ -33,7 +33,7 @@ class ReportGenerator:
 
         for report_type, report_option_list in report_data.items():
 
-            update_callback(f'Generating {report_type} report...')
+            update_callback(f"Generating {report_type} report...")
 
             for report_options in report_option_list:
 

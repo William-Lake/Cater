@@ -77,11 +77,11 @@ class InputManager:
         :rtype: str
         """
 
-        # TODO This should return a boolean.
-
-        return psg.PopupYesNo(
+        user_confirmation = psg.PopupYesNo(
             prompt, button_color=BUTTON, background_color=BACKGROUND, text_color=TEXT
         )
+
+        return user_confirmation is not None and user_confirmation == self.YES
 
     @staticmethod
     def get_user_selections(*choices, limit=1):
