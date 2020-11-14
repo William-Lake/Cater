@@ -49,6 +49,8 @@ class Cater:
 
         self._current_results_df = None
 
+        self._unsaved_changes = False
+
     def _update_status(self, message):
 
         if self._update_status_callback is None:
@@ -121,6 +123,8 @@ class Cater:
 
                 self._update_status("Workspace Saved.")
 
+                self._unsaved_changes = False
+
             else:
 
                 self._update_status("No filepath provided to save workspace to!")
@@ -162,6 +166,8 @@ class Cater:
                 *list(self._workspace_manager.get_workspace_path().glob("*.feather"))
             )
 
+            self._unsaved_changes = False
+
             self._update_status("Done")
 
         else:
@@ -182,6 +188,8 @@ class Cater:
         if file_paths:
 
             self._load_datasets(*file_paths)
+
+            self._unsaved_changes = True
 
             self._update_status("Done")
 
@@ -224,6 +232,8 @@ class Cater:
                 self._app_ui[AppUILayout.LB_DATASETS].Update(
                     self._dataset_manager.keys()
                 )
+
+                self._unsaved_changes = True
 
                 self._update_status("Done")
 
@@ -289,6 +299,8 @@ class Cater:
 
             self._app_ui.update_datasets(self._dataset_manager.keys())
 
+            self._unsaved_changes = True
+
             self._update_status("Done")
 
     def _remove_dataset(self):
@@ -316,6 +328,8 @@ class Cater:
                 )
 
                 self._app_ui.update_datasets(self._dataset_manager.keys())
+
+                self._unsaved_changes = True
 
             else:
 
@@ -378,7 +392,7 @@ class Cater:
 
         self._app_ui.start()
 
-        if not self._workspace_manager.is_empty() and InputManager.get_user_confirmation(
+        if not self._workspace_manager.is_empty() and self._unsaved_changes and InputManager.get_user_confirmation(
             prompt="It looks like your workspace isn't empty- would you like to save it before exiting?"
         ):
 
