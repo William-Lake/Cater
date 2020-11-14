@@ -33,6 +33,7 @@ class Cater:
 
         self._callback_dict = {
             AppUILayout.BTN_EXECUTE: self._execute_query,
+            AppUILayout.F5_KEY:self._execute_query,
             AppUILayout.MNU_SAVE_WORKSPACE: self._save_workspace,
             AppUILayout.MNU_LOAD_WORKSPACE: self._load_workspace,
             AppUILayout.BTN_ADD_DATASET: self._add_dataset,

@@ -24,7 +24,7 @@ class AppUI(psg.Window):
             element_padding=(0, 0), button_element_size=(15, 1), auto_size_buttons=False
         )
 
-        super().__init__(title="Cater", layout=AppUILayout())
+        super().__init__(title="Cater", layout=AppUILayout(), return_keyboard_events=True)
 
         self._control_action_dict = cater_callback_dict
 
