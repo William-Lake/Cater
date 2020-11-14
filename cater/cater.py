@@ -170,23 +170,40 @@ class Cater:
         """Loads the provided dataset paths to the datasets.
         """
 
-        """
-        TODO
-        Determine whether the dataset paths are supported file types.
-        If any aren't, ask the user if they want to continue.
-        If only some aren't and the user wants to continue-
-            go on without the problematic ones.
-        If all aren't and the user wants to continue-
-            alert the user and abandon.
+        # This all seems very messy.
 
-        dataset_manager.file_ext_read_funcs is public, and its keys are the supported file extensions.
-        """
+        dataset_validation = self._dataset_manager.validate_dataset_paths(*dataset_paths)
 
-        self._dataset_manager.load_datasets(
-            self._workspace_manager.get_workspace_path(), *dataset_paths
-        )
+        if all(dataset_validation.values()):
 
-        self._app_ui.update_datasets(self._dataset_manager.keys())
+            datasets_to_load = dataset_paths
+
+        elif any(dataset_validation.values()):
+
+            if InputManager.get_user_confirmation('It looks like some of the datasets aren\'t valid formats. Would you like to continue with just the valid ones?') == InputManager.YES:
+
+                datasets_to_load = [
+                    dataset_path
+                    for dataset_path,is_valid
+                    in dataset_validation.items()
+                    if is_valid
+                ]
+
+            else:
+
+                datasets_to_load = None
+
+        else:
+
+            datasets_to_load = None
+
+        if datasets_to_load is not None:
+
+            self._dataset_manager.load_datasets(
+                self._workspace_manager.get_workspace_path(), *datasets_to_load
+            )
+
+            self._app_ui.update_datasets(self._dataset_manager.keys())
 
     def _remove_dataset(self):
         """Removes selected datasets.

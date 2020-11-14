@@ -17,7 +17,7 @@ class DatasetManager(dict):
         """
 
         # TODO .sql files?
-        self.file_ext_read_funcs = {
+        self._file_ext_read_funcs = {
             ".feather": pd.read_feather,
             ".csv": pd.read_csv,
             ".json": pd.read_json,
@@ -42,7 +42,7 @@ class DatasetManager(dict):
             # If the dataset is already in the workspace, no need to load it.
             if dataset_path.parent != workspace_path:
 
-                read_func = self.file_ext_read_funcs[dataset_path.suffix]
+                read_func = self._file_ext_read_funcs[dataset_path.suffix]
 
                 # TODO try/except
                 # TODO Address different params each read method allows.
@@ -86,6 +86,14 @@ class DatasetManager(dict):
             dataset_name = f"{dataset_name}{suffix}"
 
         return dataset_name
+
+    def validate_dataset_paths(self,*dataset_paths):
+
+        return {
+            dataset_path:dataset_path.suffix in self._file_ext_read_funcs.keys()
+            for dataset_path
+            in dataset_paths
+        }
 
     def remove_datasets(self, selected_datasets):
         """Removes the given datasets from the manager.
