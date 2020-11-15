@@ -42,7 +42,8 @@ class Cater:
             AppUILayout.BTN_REMOVE_DATASET: self._remove_dataset,
             AppUILayout.BTN_EXPORT_DATASET: self._export_dataset,
             AppUILayout.BTN_REPORTING: self._generate_report,
-            AppUILayout.MNU_SUMMARIZE:self._summarize
+            AppUILayout.MNU_SUMMARIZE:self._summarize,
+            AppUILayout.MNU_RENAME:self._rename_dataset
         }
 
         self._app_ui = AppUI(self._callback_dict)
@@ -381,7 +382,7 @@ class Cater:
                 dataset_names[dataset_index] for dataset_index in selection_indexes
             ][0]
 
-            dataset = self._dataset_manager.load_dataset(dataset_name)
+            dataset = self._dataset_manager.read_dataset(dataset_name)
 
             null_nan_df = dataset.isnull().any().to_frame().rename(columns={0:'# Null'})
 
@@ -404,7 +405,47 @@ class Cater:
 
         else:
 
-            self._update_status("No datasets selected for export!")        
+            self._update_status("No datasets selected for summary!")      
+
+    def _rename_dataset(self):
+
+        self._update_status("Renaming dataset...")
+
+        selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
+
+        if selection_indexes and len(selection_indexes) == 1:
+
+            dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
+
+            dataset_name = [
+                dataset_names[dataset_index] for dataset_index in selection_indexes
+            ][0]
+
+            dataset = self._dataset_manager.read_dataset(dataset_name)
+
+            new_name = InputManager.get_user_text_input('New Name for Dataset?')
+
+            if new_name is not None and new_name.strip() != '':
+
+                self._dataset_manager[new_name] = self._dataset_manager[dataset_name]
+
+                del self._dataset_manager[dataset_name]
+
+                self._app_ui.update_datasets(self._dataset_manager.keys())
+
+                self._update_status('Done')
+
+            else:
+
+                self._update_status('Can\'t update dataset name- invalid name provided.')
+
+        elif len(selected_datasets) > 1:
+
+            self._update_status('More than one dataset selected, cancelled.')
+
+        else:
+
+            self._update_status("No datasets selected for to rename!")                  
 
     def _create_resources(self):
         """Creates the Cater resources.

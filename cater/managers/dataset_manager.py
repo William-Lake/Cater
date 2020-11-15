@@ -34,9 +34,7 @@ class DatasetManager(dict):
             ".pickle": pd.read_pickle,
         }
 
-    def load_dataset(self,dataset_name):
-
-        
+    def read_dataset(self,dataset_name):
 
         return pd.read_feather(self[dataset_name])
 

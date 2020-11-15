@@ -9,6 +9,7 @@ class AppUILayout(list):
     MNU_LOAD_WORKSPACE = "Load..."
     MNU_EXIT = "EXIT"
     MNU_SUMMARIZE = 'Summarize'
+    MNU_RENAME = 'Rename'
     LB_DATASETS = "LB_DATASETS"
     ML_SQL = "ML_SQL"
     ML_RSLT = "ML_RSLT"
@@ -116,7 +117,8 @@ class AppUILayout(list):
             select_mode=psg.LISTBOX_SELECT_MODE_EXTENDED,
             right_click_menu=['&Right',
             [
-                self.MNU_SUMMARIZE
+                self.MNU_SUMMARIZE,
+                self.MNU_RENAME
             ]]
         )
 
