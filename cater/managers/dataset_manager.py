@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 from datetime import datetime
 import os
 from pathlib import Path
@@ -32,6 +33,12 @@ class DatasetManager(dict):
             ".pkl": pd.read_pickle,
             ".pickle": pd.read_pickle,
         }
+
+    def load_dataset(self,dataset_name):
+
+        
+
+        return pd.read_feather(self[dataset_name])
 
     def load_datasets(self, update_status_callback, workspace_path, *dataset_paths):
         """Loads the given datasets from the target workspace.

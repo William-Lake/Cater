@@ -15,6 +15,7 @@ from managers.input_manager import InputManager
 from ui.reporting_dialog import ReportingDialog
 from managers.config_manager import ConfigManager
 from report_generator import ReportGenerator
+from ui.summary_dialog import SummaryDialog
 
 
 class Cater:
@@ -41,6 +42,7 @@ class Cater:
             AppUILayout.BTN_REMOVE_DATASET: self._remove_dataset,
             AppUILayout.BTN_EXPORT_DATASET: self._export_dataset,
             AppUILayout.BTN_REPORTING: self._generate_report,
+            AppUILayout.MNU_SUMMARIZE:self._summarize
         }
 
         self._app_ui = AppUI(self._callback_dict)
@@ -89,10 +91,14 @@ class Cater:
                 if df_name in query
             }
 
-            result = sqldf(query, dfs)
+            result = tabulate(sqldf(query, dfs), headers="keys", tablefmt="fancy_grid", showindex=False)
+
+            self._app_ui[AppUILayout.ML_RSLT].set_size((len(result.splitlines()[0]),len(result.splitlines())))
+
+            self._app_ui[AppUILayout.COL].set_size((len(result.splitlines()[0]),len(result.splitlines())))
 
             self._app_ui[AppUILayout.ML_RSLT].Update(
-                tabulate(result, headers="keys", tablefmt="fancy_grid", showindex=False)
+                result,
             )
 
             self._current_results_df = result
@@ -360,6 +366,45 @@ class Cater:
         else:
 
             self._update_status("No datasets selected for export!")
+
+    def _summarize(self):
+
+        self._update_status("Summarizing dataset...")
+
+        selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
+
+        if selection_indexes and len(selection_indexes) == 1:
+
+            dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
+
+            dataset_name = [
+                dataset_names[dataset_index] for dataset_index in selection_indexes
+            ][0]
+
+            dataset = self._dataset_manager.load_dataset(dataset_name)
+
+            null_nan_df = dataset.isnull().any().to_frame().rename(columns={0:'# Null'})
+
+            null_nan_df['# NaN'] =  dataset.isna().any()
+
+            summary_data = {
+                'Columns':tabulate(dataset.columns.to_frame(), headers="keys", tablefmt="fancy_grid"),
+                'Sample':tabulate(dataset.sample(5 if len(dataset) >= 5 else len(dataset)).fillna(''), headers="keys", tablefmt="fancy_grid"),
+                'Data Description':tabulate(dataset.describe(include='all').fillna(''), headers="keys", tablefmt="fancy_grid"),
+                'Null/NaN Values':tabulate(null_nan_df, headers="keys", tablefmt="fancy_grid"),
+            }
+
+            SummaryDialog(dataset_name,summary_data).start()
+
+            self._update_status('Done')
+
+        elif len(selected_datasets) > 1:
+
+            self._update_status('More than one dataset selected, no summary generated.')
+
+        else:
+
+            self._update_status("No datasets selected for export!")        
 
     def _create_resources(self):
         """Creates the Cater resources.

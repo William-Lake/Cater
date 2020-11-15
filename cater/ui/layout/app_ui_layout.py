@@ -8,6 +8,7 @@ class AppUILayout(list):
     MNU_SAVE_WORKSPACE = "Save..."
     MNU_LOAD_WORKSPACE = "Load..."
     MNU_EXIT = "EXIT"
+    MNU_SUMMARIZE = 'Summarize'
     LB_DATASETS = "LB_DATASETS"
     ML_SQL = "ML_SQL"
     ML_RSLT = "ML_RSLT"
@@ -41,7 +42,7 @@ class AppUILayout(list):
             layout=[
                 [
                     psg.Multiline(
-                        font=["Courier New", 10],
+                        font=["Courier New", 8],
                         key=self.ML_RSLT,
                         auto_refresh=True,
                         size=(500, 302),
@@ -113,6 +114,10 @@ class AppUILayout(list):
             key=self.LB_DATASETS,
             size=(35, 10),
             select_mode=psg.LISTBOX_SELECT_MODE_EXTENDED,
+            right_click_menu=['&Right',
+            [
+                self.MNU_SUMMARIZE
+            ]]
         )
 
         dataset_buttons = [

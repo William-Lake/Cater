@@ -81,7 +81,7 @@ class InputManager:
             prompt, button_color=BUTTON, background_color=BACKGROUND, text_color=TEXT
         )
 
-        return user_confirmation is not None and user_confirmation == self.YES
+        return user_confirmation is not None and user_confirmation == InputManager.YES
 
     @staticmethod
     def get_user_selections(*choices, limit=1):
