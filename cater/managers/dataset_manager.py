@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import shutil
 import traceback
+import inspect
 
 import pandas as pd
 from pyarrow.lib import ArrowIOError
@@ -59,6 +60,8 @@ class DatasetManager(dict):
                 # TODO Address different params each read method allows.
 
                 try:
+
+                    print(inspect.getargspec(read_func))
 
                     df = read_func(dataset_path.as_posix())
 
