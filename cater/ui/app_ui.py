@@ -61,9 +61,12 @@ class AppUI(psg.Window):
 
                 except Exception as e:
 
-                    etype,value,tb = sys.exc_info()
+                    etype, value, tb = sys.exc_info()
 
-                    psg.PopupError('There was an unexpected exception:','\n'.join(traceback.format_exception_only(etype,value)))
+                    psg.PopupError(
+                        "There was an unexpected exception:",
+                        "\n".join(traceback.format_exception_only(etype, value)),
+                    )
 
             self._review_control_state()
 
@@ -95,7 +98,7 @@ class AppUI(psg.Window):
             AppUILayout.BTN_EXPORT_DATASET: theres_no_datasets_selected,
             AppUILayout.BTN_REPORTING: theres_no_datasets,
             AppUILayout.BTN_ADD_RESULTS_TO_DATASETS: theres_no_results,
-            AppUILayout.BTN_EXECUTE:theres_no_datasets or theres_no_query
+            AppUILayout.BTN_EXECUTE: theres_no_datasets or theres_no_query,
         }
 
         for button_key, is_disabled in target_button_is_disabled_dict.items():

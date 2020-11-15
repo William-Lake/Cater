@@ -42,8 +42,8 @@ class Cater:
             AppUILayout.BTN_REMOVE_DATASET: self._remove_dataset,
             AppUILayout.BTN_EXPORT_DATASET: self._export_dataset,
             AppUILayout.BTN_REPORTING: self._generate_report,
-            AppUILayout.MNU_SUMMARIZE:self._summarize,
-            AppUILayout.MNU_RENAME:self._rename_dataset
+            AppUILayout.MNU_SUMMARIZE: self._summarize,
+            AppUILayout.MNU_RENAME: self._rename_dataset,
         }
 
         self._app_ui = AppUI(self._callback_dict)
@@ -92,15 +92,22 @@ class Cater:
                 if df_name in query
             }
 
-            result = tabulate(sqldf(query, dfs), headers="keys", tablefmt="fancy_grid", showindex=False)
-
-            self._app_ui[AppUILayout.ML_RSLT].set_size((len(result.splitlines()[0]),len(result.splitlines())))
-
-            self._app_ui[AppUILayout.COL].set_size((len(result.splitlines()[0]),len(result.splitlines())))
-
-            self._app_ui[AppUILayout.ML_RSLT].Update(
-                result,
+            result = tabulate(
+                sqldf(query, dfs),
+                headers="keys",
+                tablefmt="fancy_grid",
+                showindex=False,
             )
+
+            self._app_ui[AppUILayout.ML_RSLT].set_size(
+                (len(result.splitlines()[0]), len(result.splitlines()))
+            )
+
+            self._app_ui[AppUILayout.COL].set_size(
+                (len(result.splitlines()[0]), len(result.splitlines()))
+            )
+
+            self._app_ui[AppUILayout.ML_RSLT].Update(result,)
 
             self._current_results_df = result
 
@@ -384,28 +391,42 @@ class Cater:
 
             dataset = self._dataset_manager.read_dataset(dataset_name)
 
-            null_nan_df = dataset.isnull().any().to_frame().rename(columns={0:'# Null'})
+            null_nan_df = (
+                dataset.isnull().any().to_frame().rename(columns={0: "# Null"})
+            )
 
-            null_nan_df['# NaN'] =  dataset.isna().any()
+            null_nan_df["# NaN"] = dataset.isna().any()
 
             summary_data = {
-                'Columns':tabulate(dataset.columns.to_frame(), headers="keys", tablefmt="fancy_grid"),
-                'Sample':tabulate(dataset.sample(5 if len(dataset) >= 5 else len(dataset)).fillna(''), headers="keys", tablefmt="fancy_grid"),
-                'Data Description':tabulate(dataset.describe(include='all').fillna(''), headers="keys", tablefmt="fancy_grid"),
-                'Null/NaN Values':tabulate(null_nan_df, headers="keys", tablefmt="fancy_grid"),
+                "Columns": tabulate(
+                    dataset.columns.to_frame(), headers="keys", tablefmt="fancy_grid"
+                ),
+                "Sample": tabulate(
+                    dataset.sample(5 if len(dataset) >= 5 else len(dataset)).fillna(""),
+                    headers="keys",
+                    tablefmt="fancy_grid",
+                ),
+                "Data Description": tabulate(
+                    dataset.describe(include="all").fillna(""),
+                    headers="keys",
+                    tablefmt="fancy_grid",
+                ),
+                "Null/NaN Values": tabulate(
+                    null_nan_df, headers="keys", tablefmt="fancy_grid"
+                ),
             }
 
-            SummaryDialog(dataset_name,summary_data).start()
+            SummaryDialog(dataset_name, summary_data).start()
 
-            self._update_status('Done')
+            self._update_status("Done")
 
         elif len(selected_datasets) > 1:
 
-            self._update_status('More than one dataset selected, no summary generated.')
+            self._update_status("More than one dataset selected, no summary generated.")
 
         else:
 
-            self._update_status("No datasets selected for summary!")      
+            self._update_status("No datasets selected for summary!")
 
     def _rename_dataset(self):
 
@@ -423,9 +444,9 @@ class Cater:
 
             dataset = self._dataset_manager.read_dataset(dataset_name)
 
-            new_name = InputManager.get_user_text_input('New Name for Dataset?')
+            new_name = InputManager.get_user_text_input("New Name for Dataset?")
 
-            if new_name is not None and new_name.strip() != '':
+            if new_name is not None and new_name.strip() != "":
 
                 self._dataset_manager[new_name] = self._dataset_manager[dataset_name]
 
@@ -433,19 +454,19 @@ class Cater:
 
                 self._app_ui.update_datasets(self._dataset_manager.keys())
 
-                self._update_status('Done')
+                self._update_status("Done")
 
             else:
 
-                self._update_status('Can\'t update dataset name- invalid name provided.')
+                self._update_status("Can't update dataset name- invalid name provided.")
 
         elif len(selected_datasets) > 1:
 
-            self._update_status('More than one dataset selected, cancelled.')
+            self._update_status("More than one dataset selected, cancelled.")
 
         else:
 
-            self._update_status("No datasets selected for to rename!")                  
+            self._update_status("No datasets selected for to rename!")
 
     def _create_resources(self):
         """Creates the Cater resources.

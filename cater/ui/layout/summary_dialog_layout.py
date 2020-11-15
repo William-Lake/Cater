@@ -9,10 +9,10 @@ class SummaryDialogLayout(list):
 
     def __init__(self, dataset_name, summary_data):
 
-        self.append([psg.Text(f'Summary for {dataset_name}')])
+        self.append([psg.Text(f"Summary for {dataset_name}")])
 
         summary_items = []
-        
+
         max_width = None
 
         total_height = 0
@@ -25,28 +25,35 @@ class SummaryDialogLayout(list):
 
             total_height += height
 
-            if max_width is None or width > max_width: max_width = width
+            if max_width is None or width > max_width:
+                max_width = width
 
-            summary_items.append([psg.Frame(
-                title,
-                layout=[
-                    [
-                        psg.Multiline(
-                            data,
-                            font=["Courier New", 8],
-                            auto_refresh=True,
-                            size=(width, height),
-                            auto_size_text=True,
-                            disabled=True,
-                        )
-                    ]
-                ],
-            )        ])    
+            summary_items.append(
+                [
+                    psg.Frame(
+                        title,
+                        layout=[
+                            [
+                                psg.Multiline(
+                                    data,
+                                    font=["Courier New", 8],
+                                    auto_refresh=True,
+                                    size=(width, height),
+                                    auto_size_text=True,
+                                    disabled=True,
+                                )
+                            ]
+                        ],
+                    )
+                ]
+            )
 
-            summary_items.append([psg.HorizontalSeparator(pad=(5,5))])
+            summary_items.append([psg.HorizontalSeparator(pad=(5, 5))])
 
         scrollable_column = psg.Column(
-            layout=[*summary_items], scrollable=True, size=(max_width * 6.25, (total_height + len(summary_items) * 5) * 7),
+            layout=[*summary_items],
+            scrollable=True,
+            size=(max_width * 6.25, (total_height + len(summary_items) * 5) * 7),
         )
 
         self.append([scrollable_column])

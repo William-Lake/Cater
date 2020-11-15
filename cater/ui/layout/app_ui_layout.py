@@ -8,8 +8,8 @@ class AppUILayout(list):
     MNU_SAVE_WORKSPACE = "Save..."
     MNU_LOAD_WORKSPACE = "Load..."
     MNU_EXIT = "EXIT"
-    MNU_SUMMARIZE = 'Summarize'
-    MNU_RENAME = 'Rename'
+    MNU_SUMMARIZE = "Summarize"
+    MNU_RENAME = "Rename"
     LB_DATASETS = "LB_DATASETS"
     ML_SQL = "ML_SQL"
     ML_RSLT = "ML_RSLT"
@@ -95,7 +95,7 @@ class AppUILayout(list):
 
         sql_entry = psg.Multiline(key=self.ML_SQL, size=(54, 10), enable_events=True,)
 
-        sql_submit = psg.Button(self.BTN_EXECUTE,disabled=True)
+        sql_submit = psg.Button(self.BTN_EXECUTE, disabled=True)
 
         query_frame = psg.Frame("SQL Query", layout=[[sql_entry], [sql_submit],],)
 
@@ -115,11 +115,7 @@ class AppUILayout(list):
             key=self.LB_DATASETS,
             size=(35, 10),
             select_mode=psg.LISTBOX_SELECT_MODE_EXTENDED,
-            right_click_menu=['&Right',
-            [
-                self.MNU_SUMMARIZE,
-                self.MNU_RENAME
-            ]]
+            right_click_menu=["&Right", [self.MNU_SUMMARIZE, self.MNU_RENAME]],
         )
 
         dataset_buttons = [

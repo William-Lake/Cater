@@ -19,7 +19,7 @@ class SummaryDialog(psg.Window):
         :type datasets: list
         """
 
-        super().__init__("Summary", SummaryDialogLayout(dataset_name,summary_data))
+        super().__init__("Summary", SummaryDialogLayout(dataset_name, summary_data))
 
     def start(self):
         """Starts the UI event loop.
