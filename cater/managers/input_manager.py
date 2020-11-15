@@ -2,7 +2,7 @@ from pathlib import Path
 
 import PySimpleGUI as psg
 
-from ui.selections_dialog import SelectionsDialog
+from ui.dialog.selections_dialog import SelectionsDialog
 from ui.cater_palette import BUTTON, BACKGROUND, TEXT
 
 

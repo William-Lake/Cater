@@ -20,16 +20,27 @@ class DatasetManager(dict):
         """Constructor
         """
 
-        # TODO .sql files?
         self._file_ext_read_funcs = {
             ".feather": pd.read_feather,
             ".csv": pd.read_csv,
             ".json": pd.read_json,
             ".parquet": pd.read_parquet,
             ".dta": pd.read_stata,
-            ".pkl": pd.read_pickle,
             ".pickle": pd.read_pickle,
         }
+
+        self._file_ext_save_funcs = {
+            ".feather": "to_feather",
+            ".csv": "to_csv",
+            ".json": "to_json",
+            ".parquet": "to_parquet",
+            ".dta": "to_stata",
+            ".pickle": "to_pickle",
+        }
+
+    def get_filetypes(self):
+
+        return list(self._file_ext_read_funcs.keys())
 
     def read_dataset(self, dataset_name):
 
@@ -57,7 +68,7 @@ class DatasetManager(dict):
 
                 try:
 
-                    print(inspect.getargspec(read_func))
+                    # print(inspect.signature(read_func))
 
                     df = read_func(dataset_path.as_posix())
 
@@ -134,7 +145,7 @@ class DatasetManager(dict):
 
             del self[dataset_name]
 
-    def export_datasets(self, update_status_callback, *datasets):
+    def export_datasets(self, update_status_callback, **dataset_export_methods):
         """Saves the given datasets to a custom dataset directory.
 
         This differs from exporting a workspace because an exported
@@ -156,7 +167,7 @@ class DatasetManager(dict):
 
         save_dir.mkdir()
 
-        for dataset_name in datasets:
+        for dataset_name, export_method in dataset_export_methods.items():
 
             dataset_path = self[dataset_name]
 
@@ -164,7 +175,11 @@ class DatasetManager(dict):
             # E.g. if they want .feather files they should be able to specify that,
             # rather than defaulting to .csv.
 
-            dataset_save_path = save_dir.joinpath(dataset_path.with_suffix(".csv").name)
+            dataset_save_path = save_dir.joinpath(
+                dataset_path.with_suffix(export_method).name
+            )
+
+            dataset_save_func = self._file_ext_save_funcs[export_method]
 
             update_status_callback(
                 f"Exporting {dataset_name} to {dataset_save_path.as_posix()}"
@@ -172,7 +187,15 @@ class DatasetManager(dict):
 
             try:
 
-                pd.read_feather(dataset_path).to_csv(dataset_save_path, index=False)
+                df = pd.read_feather(dataset_path)
+
+                export_func = [
+                    func
+                    for name, func in dict(inspect.getmembers(df)).items()
+                    if name == dataset_save_func
+                ][0]
+
+                export_func(dataset_save_path)
 
             except ArrowIOError as e:
 

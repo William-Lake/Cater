@@ -12,10 +12,11 @@ from ui.layout.app_ui_layout import AppUILayout
 from managers.dataset_manager import DatasetManager
 from managers.workspace_manager import WorkspaceManager
 from managers.input_manager import InputManager
-from ui.reporting_dialog import ReportingDialog
+from ui.dialog.reporting_dialog import ReportingDialog
 from managers.config_manager import ConfigManager
 from report_generator import ReportGenerator
-from ui.summary_dialog import SummaryDialog
+from ui.dialog.summary_dialog import SummaryDialog
+from ui.dialog.export_dataset_dialog import ExportDatasetDialog
 
 
 class Cater:
@@ -343,12 +344,6 @@ class Cater:
         """Exports selected datasets.
         """
 
-        """
-        give user popup with list of options
-        get file type from user
-        get save path from user
-        save dataset
-        """
         self._update_status("Exporting dataset(s)...")
 
         selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
@@ -361,15 +356,25 @@ class Cater:
                 dataset_names[dataset_index] for dataset_index in selection_indexes
             ]
 
-            if len(selected_datasets) == len(self._dataset_manager.keys()):
+            self._update_status("Collecting export methods...")
 
-                self._save_workspace()
+            dataset_export_methods = ExportDatasetDialog(
+                dataset_names, self._dataset_manager.get_filetypes()
+            ).start()
+
+            if dataset_export_methods:
+
+                self._update_status("Exporting dataset(s)...")
+
+                self._dataset_manager.export_datasets(
+                    self._update_status, **dataset_export_methods
+                )
+
+                self._update_status("Done")
 
             else:
 
-                self._dataset_manager.export_datasets(
-                    self._update_status, *selected_datasets
-                )
+                self._update_status("No export methods provided, export cancelled.")
 
         else:
 
