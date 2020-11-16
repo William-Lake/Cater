@@ -1,15 +1,13 @@
 import PySimpleGUI as psg
 
+from ui.controls.summary_dialog_controls import *
+
 
 class SummaryDialogLayout(list):
     """The layout for the SummaryDialog.
     """
 
-    BTN_OK = "Ok"
-
     def __init__(self, dataset_name, summary_data):
-
-        self.append([psg.Text(f"Summary for {dataset_name}")])
 
         summary_items = []
 
@@ -28,34 +26,24 @@ class SummaryDialogLayout(list):
             if max_width is None or width > max_width:
                 max_width = width
 
-            summary_items.append(
-                [
-                    psg.Frame(
-                        title,
-                        layout=[
-                            [
-                                psg.Multiline(
-                                    data,
-                                    font=["Courier New", 8],
-                                    auto_refresh=True,
-                                    size=(width, height),
-                                    auto_size_text=True,
-                                    disabled=True,
-                                )
-                            ]
-                        ],
-                    )
-                ]
-            )
+            summary_items.append([DataFrame(title, DataMultiLine(data, width, height))])
 
             summary_items.append([psg.HorizontalSeparator(pad=(5, 5))])
 
-        scrollable_column = psg.Column(
-            layout=[*summary_items],
-            scrollable=True,
-            size=(max_width * 6.25, (total_height + len(summary_items) * 5) * 7),
+        self.extend(
+            [
+                [psg.Text(f"Summary for {dataset_name}")],
+                [
+                    psg.Column(
+                        layout=[*summary_items],
+                        scrollable=True,
+                        size=(
+                            max_width * 6.25,
+                            (total_height + len(summary_items) * 5) * 7,
+                        ),
+                    )
+                ],
+                [scrollable_column],
+                [psg.Button("Ok")],
+            ]
         )
-
-        self.append([scrollable_column])
-
-        self.append([psg.Button(self.BTN_OK)])

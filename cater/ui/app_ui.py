@@ -3,6 +3,17 @@ import traceback
 
 import PySimpleGUI as psg
 
+from ui.controls.app_ui_controls import (
+    MNU_EXIT,
+    ML_SQL,
+    BTN_EXECUTE,
+    LB_DATASETS,
+    BTN_REMOVE_DATASET,
+    BTN_EXPORT_DATASET,
+    BTN_REPORTING,
+    BTN_ADD_RESULTS_TO_DATASETS,
+    ML_RSLT,
+)
 from ui.layout.app_ui_layout import AppUILayout
 from ui.cater_palette import THEME
 
@@ -49,7 +60,7 @@ class AppUI(psg.Window):
 
             (event, values) = self.read(timeout=100)
 
-            if event == AppUILayout.MNU_EXIT or event == psg.WIN_CLOSED:
+            if event == MNU_EXIT or event == psg.WIN_CLOSED:
 
                 break  # exit button clicked
 
@@ -83,22 +94,20 @@ class AppUI(psg.Window):
             or (isinstance(val, str) and len(val.strip()) == 0)
         )
 
-        theres_no_datasets = is_empty(self[AppUILayout.LB_DATASETS].GetListValues())
+        theres_no_datasets = is_empty(self[LB_DATASETS].GetListValues())
 
-        theres_no_datasets_selected = is_empty(
-            self[AppUILayout.LB_DATASETS].GetIndexes()
-        )
+        theres_no_datasets_selected = is_empty(self[LB_DATASETS].GetIndexes())
 
-        theres_no_results = is_empty(self[AppUILayout.ML_RSLT].Get())
+        theres_no_results = is_empty(self[ML_RSLT].Get())
 
-        theres_no_query = is_empty(self[AppUILayout.ML_SQL].Get())
+        theres_no_query = is_empty(self[ML_SQL].Get())
 
         target_button_is_disabled_dict = {
-            AppUILayout.BTN_REMOVE_DATASET: theres_no_datasets_selected,
-            AppUILayout.BTN_EXPORT_DATASET: theres_no_datasets_selected,
-            AppUILayout.BTN_REPORTING: theres_no_datasets,
-            AppUILayout.BTN_ADD_RESULTS_TO_DATASETS: theres_no_results,
-            AppUILayout.BTN_EXECUTE: theres_no_datasets or theres_no_query,
+            BTN_REMOVE_DATASET: theres_no_datasets_selected,
+            BTN_EXPORT_DATASET: theres_no_datasets_selected,
+            BTN_REPORTING: theres_no_datasets,
+            BTN_ADD_RESULTS_TO_DATASETS: theres_no_results,
+            BTN_EXECUTE: theres_no_datasets or theres_no_query,
         }
 
         for button_key, is_disabled in target_button_is_disabled_dict.items():
@@ -109,11 +118,11 @@ class AppUI(psg.Window):
         """Clears all user input and resets the controls to their starting state.
         """
 
-        self[AppUILayout.LB_DATASETS].Update([])
+        self[LB_DATASETS].Update([])
 
-        self[AppUILayout.ML_SQL].Update()
+        self[ML_SQL].Update()
 
-        self[AppUILayout.ML_RSLT].Update()
+        self[ML_RSLT].Update()
 
     def update_datasets(self, dataset_names):
         """Adds the given datasets to the dataset listbox.
@@ -122,4 +131,4 @@ class AppUI(psg.Window):
         :type dataset_names: list
         """
 
-        self[AppUILayout.LB_DATASETS].Update(dataset_names)
+        self[LB_DATASETS].Update(dataset_names)

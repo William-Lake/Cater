@@ -34,7 +34,7 @@ class SummaryDialog(psg.Window):
 
             if event in [
                 psg.WIN_CLOSED,
-                SummaryDialogLayout.BTN_OK,
+                "Ok",
             ]:
 
                 break

@@ -17,6 +17,24 @@ from managers.config_manager import ConfigManager
 from report_generator import ReportGenerator
 from ui.dialog.summary_dialog import SummaryDialog
 from ui.dialog.export_dataset_dialog import ExportDatasetDialog
+from ui.controls.app_ui_controls import (
+    MNU_LOAD_WORKSPACE,
+    MNU_SAVE_WORKSPACE,
+    BTN_EXECUTE,
+    F5_KEY,
+    ML_SQL,
+    BTN_ADD_DATASET,
+    BTN_ADD_RESULTS_TO_DATASETS,
+    BTN_REMOVE_DATASET,
+    BTN_EXPORT_DATASET,
+    BTN_REPORTING,
+    MNU_SUMMARIZE,
+    MNU_RENAME,
+    LB_DATASETS,
+    COL,
+    STATUS_BAR,
+    ML_RSLT
+)
 
 
 class Cater:
@@ -25,26 +43,20 @@ class Cater:
     def __init__(self):
         """Constructor"""
 
-        # TODO Before exiting, if the user has datasets in their workspace
-        # warn they'll be lost and ask if they'd like to save them first.
-
-        # TODO Right click menu option in the dataset listbox to get a
-        # dataset summary.
-
         self._create_resources()
 
         self._callback_dict = {
-            AppUILayout.BTN_EXECUTE: self._execute_query,
-            AppUILayout.F5_KEY: self._execute_query,
-            AppUILayout.MNU_SAVE_WORKSPACE: self._save_workspace,
-            AppUILayout.MNU_LOAD_WORKSPACE: self._load_workspace,
-            AppUILayout.BTN_ADD_DATASET: self._add_dataset,
-            AppUILayout.BTN_ADD_RESULTS_TO_DATASETS: self._add_results_as_dataset,
-            AppUILayout.BTN_REMOVE_DATASET: self._remove_dataset,
-            AppUILayout.BTN_EXPORT_DATASET: self._export_dataset,
-            AppUILayout.BTN_REPORTING: self._generate_report,
-            AppUILayout.MNU_SUMMARIZE: self._summarize,
-            AppUILayout.MNU_RENAME: self._rename_dataset,
+            BTN_EXECUTE: self._execute_query,
+            F5_KEY: self._execute_query,
+            MNU_SAVE_WORKSPACE: self._save_workspace,
+            MNU_LOAD_WORKSPACE: self._load_workspace,
+            BTN_ADD_DATASET: self._add_dataset,
+            BTN_ADD_RESULTS_TO_DATASETS: self._add_results_as_dataset,
+            BTN_REMOVE_DATASET: self._remove_dataset,
+            BTN_EXPORT_DATASET: self._export_dataset,
+            BTN_REPORTING: self._generate_report,
+            MNU_SUMMARIZE: self._summarize,
+            MNU_RENAME: self._rename_dataset,
         }
 
         self._app_ui = AppUI(self._callback_dict)
@@ -57,7 +69,7 @@ class Cater:
 
         if self._update_status_callback is None:
 
-            self._update_status_callback = self._app_ui[AppUILayout.STATUS_BAR].Update
+            self._update_status_callback = self._app_ui[STATUS_BAR].Update
 
         self._update_status_callback(message)
 
@@ -79,13 +91,13 @@ class Cater:
 
         self._update_status("Executing Query...")
 
-        query = self._app_ui[AppUILayout.ML_SQL].Get()
+        query = self._app_ui[ML_SQL].Get()
 
         if query:
 
             query = sqlparse.format(query, reindent=True, keyword_case="upper")
 
-            self._app_ui[AppUILayout.ML_SQL].Update(query)
+            self._app_ui[ML_SQL].Update(query)
 
             dfs = {
                 df_name: pd.read_feather(df_path)
@@ -93,24 +105,24 @@ class Cater:
                 if df_name in query
             }
 
+            self._current_results_df = sqldf(query, dfs)
+
             result = tabulate(
-                sqldf(query, dfs),
+                self._current_results_df,
                 headers="keys",
                 tablefmt="fancy_grid",
                 showindex=False,
             )
 
-            self._app_ui[AppUILayout.ML_RSLT].set_size(
+            self._app_ui[ML_RSLT].set_size(
                 (len(result.splitlines()[0]), len(result.splitlines()))
             )
 
-            self._app_ui[AppUILayout.COL].set_size(
+            self._app_ui[COL].set_size(
                 (len(result.splitlines()[0]), len(result.splitlines()))
             )
 
-            self._app_ui[AppUILayout.ML_RSLT].Update(result,)
-
-            self._current_results_df = result
+            self._app_ui[ML_RSLT].Update(result,)
 
             self._update_status("Done")
 
@@ -236,9 +248,7 @@ class Cater:
 
                 self._dataset_manager[dataset_name] = dataset_path
 
-                self._app_ui[AppUILayout.LB_DATASETS].Update(
-                    self._dataset_manager.keys()
-                )
+                self._app_ui[LB_DATASETS].Update(self._dataset_manager.keys())
 
                 self._update_status("Done")
 
@@ -312,11 +322,11 @@ class Cater:
 
         self._update_status("Removing Datasets...")
 
-        selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
+        selection_indexes = self._app_ui[LB_DATASETS].GetIndexes()
 
         if selection_indexes:
 
-            dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
+            dataset_names = list(self._app_ui[LB_DATASETS].GetListValues())
 
             selected_datasets = [
                 dataset_names[dataset_index] for dataset_index in selection_indexes
@@ -346,11 +356,11 @@ class Cater:
 
         self._update_status("Exporting dataset(s)...")
 
-        selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
+        selection_indexes = self._app_ui[LB_DATASETS].GetIndexes()
 
         if selection_indexes:
 
-            dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
+            dataset_names = list(self._app_ui[LB_DATASETS].GetListValues())
 
             selected_datasets = [
                 dataset_names[dataset_index] for dataset_index in selection_indexes
@@ -359,10 +369,10 @@ class Cater:
             self._update_status("Collecting export methods...")
 
             dataset_export_methods = ExportDatasetDialog(
-                dataset_names, self._dataset_manager.get_filetypes()
+                selected_datasets, self._dataset_manager.get_filetypes()
             ).start()
 
-            if dataset_export_methods:
+            if dataset_export_methods is not None:
 
                 self._update_status("Exporting dataset(s)...")
 
@@ -384,11 +394,11 @@ class Cater:
 
         self._update_status("Summarizing dataset...")
 
-        selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
+        selection_indexes = self._app_ui[LB_DATASETS].GetIndexes()
 
         if selection_indexes and len(selection_indexes) == 1:
 
-            dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
+            dataset_names = list(self._app_ui[LB_DATASETS].GetListValues())
 
             dataset_name = [
                 dataset_names[dataset_index] for dataset_index in selection_indexes
@@ -437,11 +447,11 @@ class Cater:
 
         self._update_status("Renaming dataset...")
 
-        selection_indexes = self._app_ui[AppUILayout.LB_DATASETS].GetIndexes()
+        selection_indexes = self._app_ui[LB_DATASETS].GetIndexes()
 
         if selection_indexes and len(selection_indexes) == 1:
 
-            dataset_names = list(self._app_ui[AppUILayout.LB_DATASETS].GetListValues())
+            dataset_names = list(self._app_ui[LB_DATASETS].GetListValues())
 
             dataset_name = [
                 dataset_names[dataset_index] for dataset_index in selection_indexes

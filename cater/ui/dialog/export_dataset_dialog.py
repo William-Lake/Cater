@@ -2,6 +2,12 @@ import PySimpleGUI as psg
 import pandas as pd
 
 from ui.layout.export_dataset_dialog_layout import ExportDatasetDialogLayout
+from ui.controls.export_dataset_dialog_controls import (
+    FRM_DATASETS,
+    CMB_OPTIONS,
+    CMB_OPTIONS,
+    CHK_ALL,
+)
 from managers.input_manager import InputManager
 
 
@@ -24,7 +30,7 @@ class ExportDatasetDialog(psg.Window):
 
             if event in [
                 psg.WIN_CLOSED,
-                ExportDatasetDialogLayout.BTN_OK,
+                "Ok",
             ]:
 
                 selections = values
@@ -37,31 +43,32 @@ class ExportDatasetDialog(psg.Window):
 
         selected_options = None
 
-        if self[ExportDatasetDialogLayout.CHK_ALL]:
+        if selections:
 
-            selected_option = selections[ExportDatasetDialogLayout.CMB_OPTIONS]
+            if self[CHK_ALL].Get():
 
-            selected_options = {
-                dataset_name: selected_option for dataset_name in self._dataset_names
-            }
+                selected_option = selections[CMB_OPTIONS]
 
-        else:
+                selected_options = {
+                    dataset_name: selected_option
+                    for dataset_name in self._dataset_names
+                }
 
-            selected_options = {
-                dataset_name: selections[dataset_name]
-                for dataset_name in self._dataset_names
-            }
+            else:
 
-        print(selected_options)
+                selected_options = {
+                    dataset_name: selections[dataset_name]
+                    for dataset_name in self._dataset_names
+                }
 
-        if all(selected_options.values()):
+            if any([option is not None for option in selected_options.values()]):
 
-            return selected_options
+                return selected_options
 
     def _review_control_state(self):
         """Enables/Disables controls based on current user input.
         """
 
-        frame_visible = not self[ExportDatasetDialogLayout.CHK_ALL].Get()
+        frame_visible = not self[CHK_ALL].Get()
 
-        self[ExportDatasetDialogLayout.FRM_DATASETS].Update(visible=frame_visible)
+        self[FRM_DATASETS].Update(visible=frame_visible)

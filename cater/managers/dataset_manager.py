@@ -169,6 +169,9 @@ class DatasetManager(dict):
 
         for dataset_name, export_method in dataset_export_methods.items():
 
+            if export_method is None:
+                continue
+
             dataset_path = self[dataset_name]
 
             # TODO cater.py should determine how the user wants to save the files.

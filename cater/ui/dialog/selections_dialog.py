@@ -10,9 +10,6 @@ class SelectionsDialog(psg.Window):
     :type psg: PySimpleGUI.Window
     """
 
-    OK = "OK"
-    BTN_CANCEL = "BTN_CANCEL"
-
     def __init__(self, *choices):
         """Constructor
         """
@@ -38,11 +35,11 @@ class SelectionsDialog(psg.Window):
 
             event, values = self.read()
 
-            if event == psg.WIN_CLOSED or event == self.BTN_CANCEL:
+            if event == psg.WIN_CLOSED or event == "Cancel":
 
                 break
 
-            elif event == self.OK:
+            elif event == "Ok":
 
                 selections = [
                     selection
