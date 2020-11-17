@@ -24,8 +24,8 @@ jobs:
           python-version: 3.8
       - name: Testing
         run: |
-          pip install matplotlib
-          pip show matplotlib
+          pip install pyinstaller
+          whereis pyinstaller
 #       - name: PyInstaller Prep
 #         run: |
 #           mv cater.spec cater/
