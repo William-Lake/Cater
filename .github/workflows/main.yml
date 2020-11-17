@@ -26,7 +26,6 @@ jobs:
         run: |
           mv cater.spec cater/
           mv requirements.txt cater/
-          mv cater/__main__.py cater/main.py
       - name: PyInstaller Windows
         uses: JackMcKew/pyinstaller-action-windows@v0.1.2
         with:
