@@ -30,11 +30,6 @@ jobs:
         uses: JackMcKew/pyinstaller-action-windows@v0.1.2
         with:
           path: cater
-
-      - name: Move Executables
-        run: mv __main__.exe Cater.exe
-
-
       - uses: actions/upload-artifact@v2
         with:
           name: Cater.exe
