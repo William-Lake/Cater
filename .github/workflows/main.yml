@@ -32,7 +32,7 @@ jobs:
           path: cater
 
       - name: Move Executables
-        run: mv ./dist/windows\__main__.exe ./Cater.exe
+        run: mv ./dist/windows/__main__.exe ./Cater.exe
 
       - uses: actions/upload-artifact@v2
         with:
