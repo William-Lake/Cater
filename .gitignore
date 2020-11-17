@@ -140,4 +140,4 @@ cython_debug/
 # Cater
 __pycache__/
 .vscode/
-!__main__.spec
+!cater.spec

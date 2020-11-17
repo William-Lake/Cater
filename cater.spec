@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['cater/__main__.py'],
+a = Analysis(['cater/main.py'],
              pathex=['/home/wlake/Software/Custom/Python/cater'],
              binaries=[],
              datas=[],
