@@ -31,7 +31,7 @@ jobs:
         with:
           path: cater
       - name: Review Files
-          run: ls -Rhlst
+        run: ls -Rhlst
       # - uses: actions/upload-artifact@v2
       #   with:
       #     name: Cater.exe
