@@ -31,8 +31,8 @@ jobs:
         with:
           path: cater
 
-      - name: Review files
-        run: ls -Rhlst | grep .exe
+      - name: Move Executables
+        run: mv __main__.exe Cater.exe
 
 
       - uses: actions/upload-artifact@v2
