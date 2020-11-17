@@ -26,7 +26,8 @@ jobs:
         run: |
           pip install pyinstaller
           pyinstaller_loc=$(whereis pyinstaller | grep -w /)
-          echo $pyinstaller_loc
+          cd $pyinstaller_loc
+          ls -Rhlst
 #       - name: PyInstaller Prep
 #         run: |
 #           mv cater.spec cater/
