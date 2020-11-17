@@ -30,6 +30,7 @@ jobs:
         uses: JackMcKew/pyinstaller-action-windows@v0.1.2
         with:
           path: cater
+<<<<<<< HEAD
 
       - name: Move Executables
         run: mv ./cater/dist/windows/__main__.exe Cater.exe
@@ -39,3 +40,11 @@ jobs:
         with:
           name: Cater.exe
           path: ./
+=======
+      - name: Review Files
+        run: ls -Rhlst
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: Cater.exe
+      #     path: ./
+>>>>>>> 4f983dfdf2a8235799d784b0af44d3894703fdaa
