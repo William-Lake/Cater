@@ -36,11 +36,15 @@ jobs:
           path: cater
       - name: Review contents
         run: ls -Rhlst
-#       - name: Move Executables
-#         run: mv ./cater/dist/windows/__main__.exe Cater.exe
-
-
-#       - uses: actions/upload-artifact@v2
-#         with:
-#           name: Cater - Windows
-#           path: ./Cater.exe
+      - name: Move Executables
+        run: |
+          mv ./cater/dist/windows/__main__.exe Cater.exe
+          mv ./cater/dist/linux/__main__ Cater
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Cater - Windows
+          path: ./Cater.exe
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Cater - Linux
+          path: ./Cater
