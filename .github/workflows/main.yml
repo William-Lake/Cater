@@ -22,29 +22,33 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - name: PyInstaller Prep
+      - name: Testing
         run: |
-          mv cater.spec cater/
-          mv requirements.txt cater/
-      - name: PyInstaller Windows
-        uses: JackMcKew/pyinstaller-action-windows@v0.1.2
-        with:
-          path: cater
-      - name: PyInstaller Linux
-        uses: JackMcKew/pyinstaller-action-linux@0.1.4
-        with:
-          path: cater
-      - name: Review contents
-        run: ls -Rhlst
-      - name: Move Executables
-        run: |
-          mv ./cater/dist/windows/__main__.exe Cater.exe
-          mv ./cater/dist/linux/__main__ Cater
-      - uses: actions/upload-artifact@v2
-        with:
-          name: Cater - Windows
-          path: ./Cater.exe
-      - uses: actions/upload-artifact@v2
-        with:
-          name: Cater - Linux
-          path: ./Cater
+          pip install matplotlib
+          ls -hlst /usr/local/lib/python3.8
+#       - name: PyInstaller Prep
+#         run: |
+#           mv cater.spec cater/
+#           mv requirements.txt cater/
+#       - name: PyInstaller Windows
+#         uses: JackMcKew/pyinstaller-action-windows@v0.1.2
+#         with:
+#           path: cater
+#       - name: PyInstaller Linux
+#         uses: JackMcKew/pyinstaller-action-linux@0.1.4
+#         with:
+#           path: cater
+#       - name: Review contents
+#         run: ls -Rhlst
+#       - name: Move Executables
+#         run: |
+#           mv ./cater/dist/windows/__main__.exe Cater.exe
+#           mv ./cater/dist/linux/__main__ Cater
+#       - uses: actions/upload-artifact@v2
+#         with:
+#           name: Cater - Windows
+#           path: ./Cater.exe
+#       - uses: actions/upload-artifact@v2
+#         with:
+#           name: Cater - Linux
+#           path: ./Cater
