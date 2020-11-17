@@ -25,7 +25,8 @@ jobs:
       - name: Testing
         run: |
           pip install pyinstaller
-          whereis pyinstaller
+          pyinstaller_loc = $(whereis pyinstaller)
+          echo $pyinstaller_loc
 #       - name: PyInstaller Prep
 #         run: |
 #           mv cater.spec cater/
