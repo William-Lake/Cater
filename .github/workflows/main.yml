@@ -37,5 +37,5 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: Cater.exe
-          path: ./
+          name: Cater - Windows
+          path: ./Cater.exe
