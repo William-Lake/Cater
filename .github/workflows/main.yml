@@ -31,10 +31,8 @@ jobs:
         with:
           path: cater
 
-      - name: Move Executables
-        run: |
-          mv ./dist/windows/* .
-          mv __main__.exe Cater.exe
+      - name: Review files
+        run: ls -Rhlst | grep .exe
 
 
       - uses: actions/upload-artifact@v2
