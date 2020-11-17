@@ -25,7 +25,7 @@ jobs:
       - name: Testing
         run: |
           pip install matplotlib
-          ls -hlst /usr/local/lib/python3.8
+          pip show matplotlib
 #       - name: PyInstaller Prep
 #         run: |
 #           mv cater.spec cater/
