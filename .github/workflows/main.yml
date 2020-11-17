@@ -25,7 +25,7 @@ jobs:
       - name: Testing
         run: |
           pip install pyinstaller
-          pyinstaller_loc = $(whereis pyinstaller)
+          pyinstaller_loc=$(whereis pyinstaller | grep -w /)
           echo $pyinstaller_loc
 #       - name: PyInstaller Prep
 #         run: |
