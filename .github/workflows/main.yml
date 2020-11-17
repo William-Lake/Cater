@@ -30,7 +30,9 @@ jobs:
         uses: JackMcKew/pyinstaller-action-windows@v0.1.2
         with:
           path: cater
-      - uses: actions/upload-artifact@v2
-        with:
-          name: Cater.exe
-          path: ./
+      - name: Review Files
+          run: ls -Rhlst
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: Cater.exe
+      #     path: ./
