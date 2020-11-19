@@ -1,6 +1,6 @@
 import PySimpleGUI as psg
 
-from ui.controls.summary_dialog_controls import *
+from cater.ui.controls.summary_dialog_controls import *
 
 
 class SummaryDialogLayout(list):

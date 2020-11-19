@@ -1,8 +1,8 @@
 import PySimpleGUI as psg
 import pandas as pd
 
-from ui.layout.summary_dialog_layout import SummaryDialogLayout
-from managers.input_manager import InputManager
+from cater.ui.layout.summary_dialog_layout import SummaryDialogLayout
+from cater.managers.input_manager import InputManager
 
 
 class SummaryDialog(psg.Window):

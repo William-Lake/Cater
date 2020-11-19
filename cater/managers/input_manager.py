@@ -2,8 +2,8 @@ from pathlib import Path
 
 import PySimpleGUI as psg
 
-from ui.dialog.selections_dialog import SelectionsDialog
-from ui.cater_palette import BUTTON, BACKGROUND, TEXT
+from cater.ui.dialog.selections_dialog import SelectionsDialog
+from cater.ui.cater_palette import BUTTON, BACKGROUND, TEXT
 
 
 class InputManager:

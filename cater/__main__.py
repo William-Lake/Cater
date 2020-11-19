@@ -1,13 +1,13 @@
 import traceback
+import multiprocessing
 
 import matplotlib
 
+from cater.cater import Cater
 
-from cater import Cater
 
-
-if __name__ == "__main__":
-    """Main Method"""
+# Pyinstaller workaround....
+def main():
 
     try:
 
@@ -19,4 +19,11 @@ if __name__ == "__main__":
 
     except Exception as e:
 
-        traceback.print_exc()
+        traceback.print_exc()    
+
+
+if __name__ == "__main__":
+    """Main Method"""
+    multiprocessing.freeze_support()
+
+    main()

@@ -1,6 +1,6 @@
 import PySimpleGUI as psg
 
-from ui.layout.selections_dialog_layout import SelectionsDialogLayout
+from cater.ui.layout.selections_dialog_layout import SelectionsDialogLayout
 
 
 class SelectionsDialog(psg.Window):

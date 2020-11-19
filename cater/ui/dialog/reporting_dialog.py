@@ -1,9 +1,9 @@
 import PySimpleGUI as psg
 import pandas as pd
 
-from ui.layout.reporting_dialog_layout import ReportingDialogLayout
-from managers.input_manager import InputManager
-from ui.controls.reporting_dialog_controls import (
+from cater.ui.layout.reporting_dialog_layout import ReportingDialogLayout
+from cater.managers.input_manager import InputManager
+from cater.ui.controls.reporting_dialog_controls import (
     LB_DATASETS,
     BTN_DATACOMPY_REPORT,
     BTN_PANDAS_PROFILING_REPORT,

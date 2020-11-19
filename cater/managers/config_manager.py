@@ -2,7 +2,7 @@ import dataset
 import json
 import pandas as pd
 
-from managers.singleton import Singleton
+from cater.managers.singleton import Singleton
 
 
 class ConfigManager(metaclass=Singleton):

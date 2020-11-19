@@ -3,7 +3,7 @@ import traceback
 
 import PySimpleGUI as psg
 
-from ui.controls.app_ui_controls import (
+from cater.ui.controls.app_ui_controls import (
     MNU_EXIT,
     ML_SQL,
     BTN_EXECUTE,
@@ -14,8 +14,8 @@ from ui.controls.app_ui_controls import (
     BTN_ADD_RESULTS_TO_DATASETS,
     ML_RSLT,
 )
-from ui.layout.app_ui_layout import AppUILayout
-from ui.cater_palette import THEME
+from cater.ui.layout.app_ui_layout import AppUILayout
+from cater.ui.cater_palette import THEME
 
 
 class AppUI(psg.Window):

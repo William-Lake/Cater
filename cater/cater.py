@@ -7,17 +7,17 @@ from tabulate import tabulate
 import sqlparse
 from pandasql import sqldf
 
-from ui.app_ui import AppUI
-from ui.layout.app_ui_layout import AppUILayout
-from managers.dataset_manager import DatasetManager
-from managers.workspace_manager import WorkspaceManager
-from managers.input_manager import InputManager
-from ui.dialog.reporting_dialog import ReportingDialog
-from managers.config_manager import ConfigManager
-from report_generator import ReportGenerator
-from ui.dialog.summary_dialog import SummaryDialog
-from ui.dialog.export_dataset_dialog import ExportDatasetDialog
-from ui.controls.app_ui_controls import (
+from cater.ui.app_ui import AppUI
+from cater.ui.layout.app_ui_layout import AppUILayout
+from cater.managers.dataset_manager import DatasetManager
+from cater.managers.workspace_manager import WorkspaceManager
+from cater.managers.input_manager import InputManager
+from cater.ui.dialog.reporting_dialog import ReportingDialog
+from cater.managers.config_manager import ConfigManager
+from cater.report_generator import ReportGenerator
+from cater.ui.dialog.summary_dialog import SummaryDialog
+from cater.ui.dialog.export_dataset_dialog import ExportDatasetDialog
+from cater.ui.controls.app_ui_controls import (
     MNU_LOAD_WORKSPACE,
     MNU_SAVE_WORKSPACE,
     BTN_EXECUTE,

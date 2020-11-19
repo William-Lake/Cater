@@ -1,6 +1,6 @@
 import PySimpleGUI as psg
 
-from ui.controls.reporting_dialog_controls import *
+from cater.ui.controls.reporting_dialog_controls import *
 
 
 class ReportingDialogLayout(list):

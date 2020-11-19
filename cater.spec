@@ -1,10 +1,18 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from pathlib import Path
+import site
+
 block_cipher = None
 
+# https://medium.com/@nbenton90/python-pandas-pyinstaller-watch-out-5d9af2cea867
+def get_pandas_path():
+    import pandas
+    pandas_path = pandas.__path__[0]
+    return pandas_path
 
-a = Analysis(['__main__.py'],
-             pathex=['/home/wlake/Software/Custom/Python/cater'],
+a = Analysis(['pyinstaller_crutch.py'],
+             pathex=[Path.cwd()],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -15,6 +23,21 @@ a = Analysis(['__main__.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
+
+dict_tree = Tree(get_pandas_path(), prefix='pandas', excludes=["*.pyc"])
+a.datas += dict_tree
+a.binaries = filter(lambda x: 'pandas' not in x[0], a.binaries)
+
+site_packages_loc = Path(site.getsitepackages()[0])
+
+pp_loc = site_packages_loc.joinpath('pandas_profiling')
+
+a.datas += Tree(pp_loc, prefix='pandas_profiling')
+
+a.datas += Tree(pp_loc.joinpath('report','presentation','flavours','html','templates'), '.')
+
+a.datas += Tree(pp_loc.joinpath('visualisation'), '.')
+
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
@@ -23,11 +46,11 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='__main__',
+          name='Cater',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False )
+          console=True )
